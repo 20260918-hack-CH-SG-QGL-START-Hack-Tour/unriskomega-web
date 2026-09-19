@@ -65,9 +65,7 @@ try {
       r.url().endsWith("/api/v1/documents") && r.request().method() === "POST",
     { timeout: 120000 },
   );
-  await library
-    .getByLabel("Choose a PDF, CSV or text file")
-    .setInputFiles(fixture);
+  await library.locator('input[type="file"]').setInputFiles(fixture);
   const upload = await pending;
   assert.equal(upload.status(), 200, await upload.text());
   const document = await upload.json();
