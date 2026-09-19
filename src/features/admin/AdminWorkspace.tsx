@@ -9,13 +9,14 @@ import {
 import { AdminOverview } from "./AdminOverview";
 import styles from "./AdminStyles";
 import { DataStructure, DatasetExplorer } from "./DatasetExplorer";
-import { KnowledgeExplorer, Ontology } from "./KnowledgeExplorer";
+import { KnowledgeExplorer } from "./KnowledgeExplorer";
 import {
   type AdminMessages,
   type AdminView,
   adminMessages,
   adminViews,
 } from "./messages";
+import { Ontology } from "./Ontology";
 import { RuntimePanels } from "./RuntimePanels";
 import { useAdmin } from "./useAdmin";
 
@@ -168,8 +169,9 @@ function Content({
   if (view === "structure")
     return <DataStructure key={dataset} data={data} t={t} initial={dataset} />;
   if (view === "knowledge-graph")
-    return <KnowledgeExplorer data={data} t={t} />;
-  if (view === "ontology") return <Ontology data={data} t={t} />;
+    return <KnowledgeExplorer data={data} t={t} locale={locale} />;
+  if (view === "ontology")
+    return <Ontology data={data} t={t} locale={locale} />;
   return (
     <AdminOverview data={data} runtime={state.runtime} t={t} locale={locale} />
   );

@@ -1,0 +1,107 @@
+.inspector {
+  min-width: 0;
+  padding: var(--space-5);
+  max-height: 44rem;
+  overflow-y: auto;
+  border-top: var(--line);
+}
+.eyebrow {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+  margin-bottom: var(--space-6);
+}
+.nodeType {
+  display: block;
+  color: var(--accent);
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-2);
+}
+.inspector h2 {
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+.inspector h3 {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-weight: 500;
+  padding-top: var(--space-6);
+  margin-bottom: var(--space-3);
+}
+.description {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin-top: var(--space-3);
+}
+.inspector dl {
+  font-size: var(--text-xs);
+  margin-block: var(--space-4);
+}
+.inspector dl > div {
+  padding-block: var(--space-2);
+  border-bottom: var(--line);
+}
+.inspector dt {
+  color: var(--muted);
+}
+.inspector dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.connections {
+  display: grid;
+  gap: var(--space-2);
+}
+.connections button {
+  text-align: left;
+  display: grid;
+  gap: var(--space-1);
+  background: transparent;
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  color: var(--text);
+}
+.connections button:hover {
+  background: var(--surface-soft);
+  border-color: var(--accent);
+}
+.connections span,
+.connections small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+}
+.connections strong {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.placeholder {
+  text-align: center;
+  color: var(--muted);
+  padding-block: var(--space-10);
+}
+.placeholder > span {
+  font-size: 3rem;
+  color: var(--accent);
+  display: block;
+  margin-bottom: var(--space-5);
+}
+.placeholder h2 {
+  font-size: var(--text-base);
+  color: var(--text);
+}
+.placeholder p {
+  font-size: var(--text-xs);
+  margin-top: var(--space-3);
+}
+
+@media (min-width: 70rem) {
+  .inspector {
+    border-top: 0;
+    border-left: var(--line);
+  }
+}
