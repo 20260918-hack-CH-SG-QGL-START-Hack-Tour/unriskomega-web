@@ -226,7 +226,7 @@ export function FindingsPanel({ portfolio }: { portfolio: Portfolio }) {
                 <summary>{t.source}</summary>
                 <small>{finding.message}</small>
               </details>
-              {finding.source && <small>{finding.source}</small>}
+              <small>{finding.source || t.unavailable}</small>
             </div>
           </div>
         ))

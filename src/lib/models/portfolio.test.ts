@@ -67,6 +67,17 @@ describe("portfolio boundary", () => {
     expect(result.holdings[1].marketValue).toBeNull();
     expect(result.holdings[1].weight).toBeNull();
   });
+  it("renders imported sponsor findings when their source date or optional locator is unavailable", () => {
+    const result = parsePortfolio({
+      ...snapshot,
+      sources: [{ ...source, asOf: null }],
+      violations: [{ code: "Sponsor warning", severity: "Warning" }],
+    });
+    expect(result.sources[0].asOf).toBe("");
+    expect(result.findings[0].source).toBe("");
+    expect(result.findings[0].message).toBe("Sponsor warning");
+    expect(result.holdings[0].marketValue).toBe(25000);
+  });
   it("rejects malformed portfolio values", () => {
     expect(() => parsePortfolio({ ...snapshot, aum: "NaN" })).toThrow();
     expect(() =>

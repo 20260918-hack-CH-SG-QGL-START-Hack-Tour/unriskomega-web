@@ -279,7 +279,7 @@ export function Workspace() {
                     </dl>
                     {(state.briefing?.sources ?? p.sources).map((source) => (
                       <p key={source.id} className={styles.sourceText}>
-                        {source.title} · {source.asOf}
+                        {source.title} · {source.asOf || t.unavailable}
                       </p>
                     ))}
                     <p className={styles.sourceNote}>{t.sourceLanguage}</p>

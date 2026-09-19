@@ -118,7 +118,7 @@ function parseFinding(value: unknown, index: number): Finding {
     id: `${string(f.code)}-${index}`,
     severity: string(f.severity),
     message: string(f.code),
-    source: string(f.sourceRef),
+    source: f.sourceRef == null ? "" : string(f.sourceRef),
   };
 }
 export function parseSources(value: unknown): EvidenceSource[] {
@@ -128,7 +128,7 @@ export function parseSources(value: unknown): EvidenceSource[] {
       id: string(source.id),
       title: string(source.title),
       url: string(source.url),
-      asOf: string(source.asOf),
+      asOf: source.asOf == null ? "" : string(source.asOf),
     };
   });
 }
