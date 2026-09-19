@@ -4,6 +4,7 @@ import { usePreferences } from "@/features/preferences/Preferences";
 import { formatNumber } from "@/lib/i18n";
 import { assetLabel, findingLabel } from "@/lib/i18n/portfolioLabels";
 import type { Portfolio } from "@/lib/models/portfolio";
+import { AllocationComparison } from "./AllocationComparison";
 import styles from "./WorkspaceStyles";
 
 const colors = [
@@ -104,6 +105,7 @@ export function AllocationPanel({ portfolio }: { portfolio: Portfolio }) {
           ))}
         </div>
       </div>
+      <AllocationComparison portfolio={portfolio} />
       <div className={styles.tableScroll}>
         <table className={styles.allocationTable}>
           <caption>{t.allocation}</caption>

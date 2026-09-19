@@ -231,6 +231,7 @@ export function Workspace() {
                       ?.alias ?? ""
                   }
                   portfolioName={p.name}
+                  portfolio={p}
                 />
               </div>
               {tab === "documents" && (

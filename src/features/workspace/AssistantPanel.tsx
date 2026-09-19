@@ -12,9 +12,11 @@ import {
   type ConversationTurn,
   conversationNote,
 } from "@/lib/models/conversation";
+import type { Portfolio } from "@/lib/models/portfolio";
 import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
 import { ConversationHeader } from "./ConversationHeader";
+import { PortfolioContext } from "./PortfolioContext";
 import { useAssistantChat } from "./useAssistantChat";
 import { useDictationComposer } from "./useDictationComposer";
 import { useVoice } from "./useVoice";
@@ -29,6 +31,7 @@ export function AssistantPanel({
   visible,
   clientAlias,
   portfolioName,
+  portfolio,
 }: {
   portfolioId: string;
   clientId: string;
@@ -37,6 +40,7 @@ export function AssistantPanel({
   visible: boolean;
   clientAlias: string;
   portfolioName: string;
+  portfolio: Portfolio;
 }) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
@@ -86,6 +90,7 @@ export function AssistantPanel({
         portfolioName={portfolioName}
         sessionId={chat.sessionId}
       />
+      <PortfolioContext portfolio={portfolio} />
       <div className={styles.attachments}>
         <DocumentLibrary
           compact
