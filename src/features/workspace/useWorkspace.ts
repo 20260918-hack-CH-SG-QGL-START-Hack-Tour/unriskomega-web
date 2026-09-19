@@ -186,6 +186,7 @@ export function useWorkspace(locale: Locale) {
     };
   }, [portfolioId]);
   function setClientId(id: string) {
+    if (id === clientId) return;
     version.current++;
     setPortfolio(null);
     setBriefing(null);
@@ -197,6 +198,7 @@ export function useWorkspace(locale: Locale) {
     setError(false);
   }
   function setPortfolioId(id: string) {
+    if (id === portfolioId) return;
     version.current++;
     setPortfolio(null);
     setBriefing(null);

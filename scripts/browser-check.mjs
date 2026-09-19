@@ -7,6 +7,7 @@ import {
 } from "./browser-generative.mjs";
 import { verifyLiveImage } from "./browser-image.mjs";
 import { verifyClientSwitchIsolation } from "./browser-scope.mjs";
+import { verifySelectionStability } from "./browser-selection.mjs";
 import {
   assertVoiceConnected,
   assertVoiceMuted,
@@ -123,6 +124,7 @@ try {
     await signIn();
     await shot("workspace-overview");
     check("demo authentication and actual portfolio analytics");
+    await verifySelectionStability(page, check);
     await page.evaluate(
       () =>
         new Promise((resolve, reject) => {
@@ -134,14 +136,17 @@ try {
             socket.close();
             reject(new Error("WebSocket exchange timed out"));
           }, 30000);
+          socket.onopen = () => socket.send(JSON.stringify({ type: "ping" }));
+          socket.onclose = () => {
+            clearTimeout(timeout);
+            reject(new Error("WebSocket closed before pong"));
+          };
           socket.onerror = () => {
             clearTimeout(timeout);
             reject(new Error("WebSocket handshake failed"));
           };
           socket.onmessage = (event) => {
             const payload = JSON.parse(event.data);
-            if (payload.type === "connected")
-              socket.send(JSON.stringify({ type: "ping" }));
             if (payload.type === "pong") {
               clearTimeout(timeout);
               socket.close();
