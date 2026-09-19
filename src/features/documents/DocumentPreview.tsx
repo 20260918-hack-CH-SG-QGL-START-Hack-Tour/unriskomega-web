@@ -58,6 +58,9 @@ export function DocumentPreview({
       )}
       {active && (
         <>
+          {active.status === "superseded" && (
+            <p className={styles.warning}>{t.superseded}</p>
+          )}
           <p>{active.extraction.summary}</p>
           {active.extraction.warnings.length > 0 && (
             <details>
@@ -70,6 +73,7 @@ export function DocumentPreview({
             </details>
           )}
           {active.kind === "custody" &&
+            active.status !== "superseded" &&
             (active.virtualPortfolioId ? (
               <button
                 className={styles.primary}

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api, record } from "@/lib/api/client";
 import { publishDataChange } from "@/lib/api/dataChanges";
+import { clientConfig } from "@/lib/config";
 import type { Locale } from "@/lib/i18n";
 import { filePayload } from "./model";
 import {
@@ -72,7 +73,10 @@ export function useUploads(
             const response = record(
               await api("documents", {
                 method: "POST",
-                signal: controller.signal,
+                signal: AbortSignal.any([
+                  controller.signal,
+                  AbortSignal.timeout(clientConfig.requestTimeoutMs),
+                ]),
                 body: JSON.stringify({
                   ...payload,
                   ...context,

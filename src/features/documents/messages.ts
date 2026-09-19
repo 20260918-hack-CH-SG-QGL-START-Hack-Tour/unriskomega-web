@@ -71,6 +71,7 @@ const en = {
   rounding:
     "The original statement rounds each position to whole currency units. I accept the displayed rounding difference.",
   roundingDifference: "Source rounding difference",
+  superseded: "Source snapshot replaced",
 };
 type Copy = typeof en;
 const es: Copy = {
@@ -145,6 +146,7 @@ const es: Copy = {
   rounding:
     "El extracto original redondea cada posición a unidades monetarias enteras. Acepto la diferencia de redondeo indicada.",
   roundingDifference: "Diferencia de redondeo del origen",
+  superseded: "Instantánea de origen reemplazada",
 };
 const de: Copy = {
   ...en,
@@ -219,6 +221,7 @@ const de: Copy = {
   rounding:
     "Der Originalauszug rundet jede Position auf ganze Währungseinheiten. Ich akzeptiere die angezeigte Rundungsdifferenz.",
   roundingDifference: "Rundungsdifferenz der Quelle",
+  superseded: "Quellsnapshot ersetzt",
 };
 const fr: Copy = {
   ...en,
@@ -293,5 +296,6 @@ const fr: Copy = {
   rounding:
     "Le relevé original arrondit chaque position à l’unité monétaire. J’accepte l’écart d’arrondi indiqué.",
   roundingDifference: "Écart d’arrondi de la source",
+  superseded: "Instantané source remplacé",
 };
 export const documentMessages: Record<Locale, Copy> = { en, es, de, fr };

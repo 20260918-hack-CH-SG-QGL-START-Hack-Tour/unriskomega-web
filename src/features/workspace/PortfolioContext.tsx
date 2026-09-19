@@ -21,7 +21,7 @@ export function PortfolioContext({ portfolio }: { portfolio: Portfolio }) {
       </header>
       <dl>
         <div>
-          <dt>{t.portfolioValue}</dt>
+          <dt>{copy.snapshotValue}</dt>
           <dd>
             {formatNumber(portfolio.totalValue, locale, {
               maximumFractionDigits: 0,

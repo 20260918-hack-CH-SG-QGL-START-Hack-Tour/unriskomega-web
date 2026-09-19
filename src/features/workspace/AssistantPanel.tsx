@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useRef } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { Tooltip } from "@/components/ui/overlays/Tooltip/Tooltip";
 import { DocumentLibrary } from "@/features/documents/DocumentLibrary";
@@ -16,6 +16,7 @@ import type { Portfolio } from "@/lib/models/portfolio";
 import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
 import { ConversationHeader } from "./ConversationHeader";
+import { contextMessages } from "./contextMessages";
 import { PortfolioContext } from "./PortfolioContext";
 import { useAssistantChat } from "./useAssistantChat";
 import { useDictationComposer } from "./useDictationComposer";
@@ -44,6 +45,7 @@ export function AssistantPanel({
 }) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
+  const [refreshedVoice, setRefreshedVoice] = useState(false);
   const voiceNotes = useRef<((turn: ConversationTurn) => void) | null>(null);
   const chat = useAssistantChat(portfolioId, locale, t, copy, (message) =>
     voiceNotes.current?.(conversationNote(message)),
@@ -98,9 +100,23 @@ export function AssistantPanel({
           portfolioId={portfolioId}
           chatSessionId={chat.sessionId}
           onImported={onImported}
-          onUpdated={onUpdated}
+          onUpdated={() => {
+            if (
+              ["active", "connecting", "finalizing"].includes(voice.voiceState)
+            ) {
+              voice.cancel();
+              setRefreshedVoice(true);
+            }
+            chat.cancel();
+            onUpdated();
+          }}
         />
       </div>
+      {refreshedVoice && (
+        <output className={styles.status}>
+          {contextMessages[locale].refreshedVoice}
+        </output>
+      )}
       <AssistantMessages
         messages={chat.messages}
         onPrompt={choosePrompt}

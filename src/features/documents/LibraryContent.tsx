@@ -42,8 +42,8 @@ export function LibraryContent({
         setFolder("all");
         onUpdated?.();
       } catch (error) {
-        if (version === generation.current)
-          setError(error instanceof Error ? error.message : t.error);
+        if (version !== generation.current) return;
+        setError(error instanceof Error ? error.message : t.error);
         onUpdated?.();
       }
     },
@@ -227,6 +227,7 @@ export function LibraryContent({
                 {item.result?.imported && item.result.portfolioId && (
                   <button
                     type="button"
+                    disabled={busy}
                     onClick={() =>
                       onImported(
                         item.result?.portfolioId ?? "",
@@ -240,6 +241,7 @@ export function LibraryContent({
                 {item.result?.review && item.result.clientId === clientId && (
                   <button
                     type="button"
+                    disabled={busy}
                     onClick={() => setSelected(item.result?.documentId ?? "")}
                   >
                     {t.review}
@@ -326,7 +328,13 @@ export function LibraryContent({
                       ? t.portfolio
                       : t.client}
                 </span>
-                <span>{doc.status === "imported" ? t.reviewed : t.ready}</span>
+                <span>
+                  {doc.status === "superseded"
+                    ? t.superseded
+                    : doc.status === "imported"
+                      ? t.reviewed
+                      : t.ready}
+                </span>
               </footer>
             </button>
           ))}
