@@ -122,6 +122,8 @@ export async function verifyGenerativeChat(page, check, shot) {
     name: "Create image",
     exact: true,
   });
+  await page.mouse.move(0, 0);
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
   await imageAction.focus();
   await page
     .getByRole("tooltip")
