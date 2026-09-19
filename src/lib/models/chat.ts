@@ -111,9 +111,9 @@ export function parseGeneratedImage(value: unknown): GeneratedImage {
 // Only explicit opening commands select the paid image capability. Mentions of
 // images, negations and questions about charts remain normal portfolio chat.
 const imageCommand =
-  /^(?:\/image(?:\s+|$)|(?:(?:please\s+)?(?:generate|create|draw)\s+(?:me\s+)?(?:an?\s+)?(?:image|illustration|picture)\b|(?:por favor\s+)?(?:genera|generar|crea|crear|dibuja)\s+(?:una?\s+)?(?:imagen|ilustración)\b|(?:bitte\s+)?(?:erstelle|generiere|zeichne)\s+(?:mir\s+)?(?:ein(?:e)?\s+)?(?:bild|illustration)\b|(?:s'il vous plaît\s+)?(?:génère|générer|crée|créer|dessine)\s+(?:une?\s+)?(?:image|illustration)\b))/iu;
+  /^(?:\/image(?:\s+|$)|(?:(?:(?:can you|could you|would you)\s+)?(?:please\s+)?(?:generate|create|draw)\s+(?:me\s+)?(?:an?\s+)?(?:image|illustration|picture)\b|(?:(?:puedes|podrías)\s+)?(?:por favor\s+)?(?:genera|generar|crea|crear|dibuja|dibujar)\s+(?:una?\s+)?(?:imagen|ilustración)\b|(?:(?:kannst du|könntest du)\s+)?(?:bitte\s+)?(?:erstelle|generiere|zeichne)\s+(?:mir\s+)?(?:ein(?:e)?\s+)?(?:bild|illustration)\b|(?:(?:peux-tu|pouvez-vous)\s+)?(?:s'il vous plaît\s+)?(?:génère|générer|crée|créer|dessine|dessiner)\s+(?:une?\s+)?(?:image|illustration)\b))/iu;
 export function imagePrompt(input: string): string | null {
   const prompt = input.trim();
   if (!imageCommand.test(prompt)) return null;
-  return prompt.startsWith("/image") ? prompt.slice(6).trim() : prompt;
+  return /^\/image\b/i.test(prompt) ? prompt.slice(6).trim() : prompt;
 }

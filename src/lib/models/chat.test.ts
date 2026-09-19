@@ -171,6 +171,10 @@ describe("same-conversation image capability", () => {
   it("routes explicit requests in all four languages", () => {
     for (const prompt of [
       "Generate an image of a river",
+      "Can you please generate an image of a river?",
+      "Could you create a picture of a river?",
+      "Puedes crear una imagen de un río",
+      "Peux-tu créer une image de rivière",
       "Crea una imagen de un río",
       "Erstelle ein Bild von einem Fluss",
       "Génère une image de rivière",
@@ -178,6 +182,7 @@ describe("same-conversation image capability", () => {
       expect(imagePrompt(prompt)).toBe(prompt);
     expect(imagePrompt("/image a landscape")).toBe("a landscape");
     expect(imagePrompt("/image")).toBe("");
+    expect(imagePrompt("/IMAGE a landscape")).toBe("a landscape");
   });
   it("does not route mentions, negations, diagrams or portfolio questions to image generation", () => {
     for (const prompt of [
