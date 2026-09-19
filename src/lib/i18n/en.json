@@ -93,6 +93,7 @@
   "dictate": "Dictate message",
   "stopVoice": "Stop microphone",
   "voiceConnecting": "Connecting voice…",
+  "voiceFinalizing": "Microphone stopped · finishing dictation…",
   "voiceActive": "Microphone active · click to stop",
   "voiceError": "Voice is unavailable. You can continue with text.",
   "image": "Create image",

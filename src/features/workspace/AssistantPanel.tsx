@@ -6,6 +6,7 @@ import { usePreferences } from "@/features/preferences/Preferences";
 import { ApiError, api, record, string } from "@/lib/api/client";
 import { clientConfig } from "@/lib/config";
 import styles from "./AssistantStyles.module.css";
+import { useDictationComposer } from "./useDictationComposer";
 import { useVoice } from "./useVoice";
 
 type Message = {
@@ -24,6 +25,7 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
   const [generatedImage, setImage] = useState("");
   const [imageModel, setImageModel] = useState("");
   const sequence = useRef(0);
+  const dictation = useDictationComposer(input, setInput);
   const append = (role: Message["role"], text: string, model?: string) =>
     setMessages((values) => [
       ...values,
@@ -32,16 +34,17 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
   const voice = useVoice(
     portfolioId,
     locale,
-    (text, mode, model) => {
+    (text, mode, model, transcript) => {
       if (mode === "conversation")
         append("user", text, `${t.voice} · ${model}`);
-      else setInput((value) => `${value} ${text}`.trim());
+      else dictation.accept(transcript);
     },
     (text, model) => append("assistant", text, `${t.voice} · ${model}`),
+    dictation.discard,
   );
   async function submit(event?: FormEvent) {
     event?.preventDefault();
-    if (!input.trim() || pending) return;
+    if (!input.trim() || pending || voice.voiceMode === "transcription") return;
     const prompt = input.trim();
     setPending(true);
     setError("");
@@ -83,7 +86,9 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
     }
   }
   const active =
-    voice.voiceState === "active" || voice.voiceState === "connecting";
+    voice.voiceState === "active" ||
+    voice.voiceState === "connecting" ||
+    voice.voiceState === "finalizing";
   return (
     <section className={styles.panel}>
       <div className={styles.heading}>
@@ -112,7 +117,7 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
           type="button"
           aria-pressed={imageMode}
           onClick={() => {
-            voice.stop();
+            voice.cancel();
             setImageMode(true);
           }}
         >
@@ -157,6 +162,7 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
                     type="button"
                     key={prompt}
                     onClick={() => setInput(prompt)}
+                    disabled={voice.voiceMode === "transcription"}
                   >
                     {prompt}
                     <Icon name="arrow" width="15" />
@@ -216,6 +222,7 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
           onChange={(event) => setInput(event.target.value)}
           placeholder={imageMode ? t.imagePlaceholder : t.chatPlaceholder}
           rows={3}
+          readOnly={voice.voiceMode === "transcription"}
           maxLength={
             imageMode
               ? clientConfig.maxImagePromptLength
@@ -240,13 +247,17 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
                   aria-label={active ? t.stopVoice : t.voice}
                   title={active ? t.stopVoice : t.voice}
                   aria-pressed={active}
+                  disabled={voice.voiceState === "finalizing"}
                 >
                   <Icon name={active ? "stop" : "mic"} width="18" />
                   {active ? t.stopVoice : t.voice}
                 </button>
                 <button
                   type="button"
-                  onClick={() => void voice.start("transcription")}
+                  onClick={() => {
+                    dictation.begin();
+                    void voice.start("transcription");
+                  }}
                   disabled={active}
                   title={t.dictate}
                   aria-label={t.dictate}
@@ -258,7 +269,9 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
           </div>
           <button
             type="submit"
-            disabled={pending || !input.trim()}
+            disabled={
+              pending || !input.trim() || voice.voiceMode === "transcription"
+            }
             className={styles.send}
             aria-label={t.send}
           >
@@ -271,7 +284,9 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
           <span className={styles.pulse} />
           {voice.voiceState === "connecting"
             ? t.voiceConnecting
-            : t.voiceActive}
+            : voice.voiceState === "finalizing"
+              ? t.voiceFinalizing
+              : t.voiceActive}
         </output>
       )}
       <footer>

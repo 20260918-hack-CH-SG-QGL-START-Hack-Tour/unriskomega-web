@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, record, string } from "@/lib/api/client";
 import { clientConfig } from "@/lib/config";
 import type { Locale } from "@/lib/i18n";
-import { VoiceTranscriptLedger } from "@/lib/models/voice";
+import {
+  type SpokenTranscript,
+  VoiceTranscriptLedger,
+} from "@/lib/models/voice";
 export function useVoice(
   portfolioId: string,
   locale: Locale,
@@ -11,25 +14,40 @@ export function useVoice(
     text: string,
     mode: "conversation" | "transcription",
     model: string,
+    transcript: SpokenTranscript,
   ) => void,
   onResponse: (text: string, model: string) => void,
+  onDiscard: () => void,
 ) {
   const [voiceState, setState] = useState<
-    "idle" | "connecting" | "active" | "error"
+    "idle" | "connecting" | "active" | "finalizing" | "error"
   >("idle");
+  const [voiceMode, setVoiceMode] = useState<
+    "conversation" | "transcription" | null
+  >(null);
   const peer = useRef<RTCPeerConnection | null>(null);
   const channel = useRef<RTCDataChannel | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
   const generation = useRef(0);
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const callbacks = useRef({ onTranscript, onResponse });
+  const finalTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const finalizing = useRef(false);
+  const activeMode = useRef<"conversation" | "transcription" | null>(null);
+  const callbacks = useRef({ onTranscript, onResponse, onDiscard });
   const transcripts = useRef(new VoiceTranscriptLedger());
   const model = useRef("");
-  callbacks.current = { onTranscript, onResponse };
-  const stop = useCallback(() => {
+  callbacks.current = { onTranscript, onResponse, onDiscard };
+  const close = useCallback((discard = true) => {
     generation.current++;
     clearTimeout(timeout.current);
+    clearTimeout(finalTimeout.current);
+    if (discard && activeMode.current === "transcription")
+      callbacks.current.onDiscard();
+    activeMode.current = null;
+    finalizing.current = false;
     stream.current?.getTracks().forEach((track) => {
       track.stop();
     });
@@ -42,13 +60,46 @@ export function useVoice(
       audio.current.pause();
       audio.current.srcObject = null;
     }
+    setVoiceMode(null);
     setState("idle");
   }, []);
-  useEffect(() => () => stop(), [stop]);
+  const cancel = useCallback(() => close(), [close]);
+  const stop = useCallback(() => {
+    if (finalizing.current) return;
+    stream.current?.getTracks().forEach((track) => {
+      track.stop();
+    });
+    stream.current = null;
+    clearTimeout(timeout.current);
+    if (
+      activeMode.current !== "transcription" ||
+      channel.current?.readyState !== "open"
+    ) {
+      close(false);
+      return;
+    }
+    finalizing.current = true;
+    setState("finalizing");
+    finalTimeout.current = setTimeout(
+      () => close(false),
+      clientConfig.dictationFinalizeTimeoutMs,
+    );
+    try {
+      channel.current.send(
+        JSON.stringify({ type: "input_audio_buffer.commit" }),
+      );
+    } catch {
+      cancel();
+      setState("error");
+    }
+  }, [cancel, close]);
+  useEffect(() => () => cancel(), [cancel]);
   async function start(mode: "conversation" | "transcription") {
-    stop();
+    cancel();
     transcripts.current.reset();
     model.current = "";
+    activeMode.current = mode;
+    setVoiceMode(mode);
     const current = generation.current;
     setState("connecting");
     timeout.current = setTimeout(stop, clientConfig.maxVoiceDurationMs);
@@ -70,7 +121,7 @@ export function useVoice(
           audio.current.srcObject = event.streams[0];
           void audio.current.play().catch(() => {
             if (current !== generation.current) return;
-            stop();
+            cancel();
             setState("error");
           });
         }
@@ -82,11 +133,22 @@ export function useVoice(
       events.onmessage = (event) => {
         if (current === generation.current) handleEvent(event.data, mode);
       };
+      events.onerror = () => {
+        if (current !== generation.current) return;
+        cancel();
+        setState("error");
+      };
+      events.onclose = () => {
+        if (current !== generation.current) return;
+        cancel();
+        setState("error");
+      };
       connection.onconnectionstatechange = () => {
         if (current !== generation.current) return;
-        if (connection.connectionState === "connected") setState("active");
+        if (connection.connectionState === "connected" && !finalizing.current)
+          setState("active");
         if (connection.connectionState === "failed") {
-          stop();
+          cancel();
           setState("error");
         }
       };
@@ -106,25 +168,34 @@ export function useVoice(
       });
     } catch {
       if (current !== generation.current) return;
-      stop();
+      cancel();
       setState("error");
     }
   }
   function handleEvent(raw: string, mode: "conversation" | "transcription") {
     try {
       const event = record(JSON.parse(raw));
-      const transcript = transcripts.current.accept(event);
+      const transcript = transcripts.current.accept(event, {
+        partials: mode === "transcription",
+      });
       if (transcript?.role === "user")
-        callbacks.current.onTranscript(transcript.text, mode, model.current);
+        callbacks.current.onTranscript(
+          transcript.text,
+          mode,
+          model.current,
+          transcript,
+        );
       if (transcript?.role === "assistant" && mode === "conversation")
         callbacks.current.onResponse(transcript.text, model.current);
+      if (transcript?.role === "user" && transcript.final && finalizing.current)
+        close(false);
       if (event.type === "error") {
-        stop();
+        cancel();
         setState("error");
       }
     } catch {
       console.warn("Invalid voice event rejected");
     }
   }
-  return { voiceState, start, stop };
+  return { voiceState, voiceMode, start, stop, cancel };
 }

@@ -93,6 +93,7 @@
   "dictate": "Nachricht diktieren",
   "stopVoice": "Mikrofon stoppen",
   "voiceConnecting": "Sprachverbindung wird aufgebaut…",
+  "voiceFinalizing": "Mikrofon gestoppt · Diktat wird abgeschlossen…",
   "voiceActive": "Mikrofon aktiv · zum Stoppen klicken",
   "voiceError": "Sprache ist nicht verfügbar. Sie können per Text fortfahren.",
   "image": "Bild erstellen",
