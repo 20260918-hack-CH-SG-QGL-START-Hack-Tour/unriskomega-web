@@ -91,3 +91,38 @@ describe("portfolio boundary", () => {
     expect(result.sections[0].text).toBe("<script>alert(1)</script>");
   });
 });
+
+it("renders a validated synthesized briefing response while preserving source fallback data", () => {
+  const value = {
+    mode: "provider",
+    generatedAt: "2026-09-19",
+    sections: [{ key: "health", text: "Deterministic fallback" }],
+    sources: [source],
+    assistantResponse: {
+      text: "Synthesized story",
+      model: "provider",
+      evidence: [{ id: "E1", label: "Snapshot", locator: "portfolio.aum" }],
+      components: [
+        {
+          type: "metric",
+          label: "Value",
+          value: "250000",
+          detail: "CHF",
+          sourceIds: ["E1"],
+        },
+      ],
+    },
+  };
+  expect(parseBriefing(value).assistantResponse?.components[0].type).toBe(
+    "metric",
+  );
+  const rejected = parseBriefing({
+    ...value,
+    assistantResponse: {
+      ...value.assistantResponse,
+      components: [{ type: "html", html: "<script>bad()</script>" }],
+    },
+  });
+  expect(rejected.assistantResponse).toBeUndefined();
+  expect(rejected.sections[0].text).toBe("Deterministic fallback");
+});

@@ -1,4 +1,5 @@
 import { list, number, record, string } from "@/lib/api/client";
+import { type ChatAnswer, parseChatAnswer } from "./chat";
 export type Client = {
   id: string;
   alias: string;
@@ -56,6 +57,7 @@ export type Portfolio = {
   raw: Record<string, unknown>;
 };
 export type Briefing = {
+  assistantResponse?: ChatAnswer;
   mode: string;
   model: string;
   sections: { key: string; text: string }[];
@@ -154,7 +156,16 @@ export function parseBriefing(value: unknown): Briefing {
     const section = record(item);
     return { key: string(section.key), text: string(section.text) };
   });
+  let assistantResponse: ChatAnswer | undefined;
+  if (v.assistantResponse != null) {
+    try {
+      assistantResponse = parseChatAnswer(v.assistantResponse);
+    } catch {
+      /* Keep the source-backed fallback when provider output fails validation. */
+    }
+  }
   return {
+    assistantResponse,
     mode: string(v.mode),
     model: typeof v.model === "string" ? v.model : "",
     sections,

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { usePreferences } from "@/features/preferences/Preferences";
 import type { Briefing, Portfolio } from "@/lib/models/portfolio";
+import { BriefingAnswer } from "./BriefingAnswer";
 import styles from "./WorkspaceStyles";
 export function BriefingPanel({
   briefing,
@@ -56,22 +57,26 @@ export function BriefingPanel({
         <>
           <div className={styles.modeLabel}>
             <Icon name="shield" width="14" />
-            {briefing.mode.includes("deterministic")
-              ? t.deterministic
-              : t.grounded}
-            {briefing.model && <span> · {briefing.model}</span>}
+            {briefing.assistantResponse ? t.grounded : t.deterministic}
+            {briefing.assistantResponse?.model && (
+              <span> · {briefing.assistantResponse.model}</span>
+            )}
           </div>
-          <div className={styles.briefingSections}>
-            {briefing.sections.map((section, index) => (
-              <div key={`${section.key}-${index}`}>
-                <h3>
-                  <span>0{index + 1}</span>
-                  {labels[section.key.toLowerCase()] ?? section.key}
-                </h3>
-                <p>{section.text}</p>
-              </div>
-            ))}
-          </div>
+          {briefing.assistantResponse ? (
+            <BriefingAnswer answer={briefing.assistantResponse} />
+          ) : (
+            <div className={styles.briefingSections}>
+              {briefing.sections.map((section, index) => (
+                <div key={`${section.key}-${index}`}>
+                  <h3>
+                    <span>0{index + 1}</span>
+                    {labels[section.key.toLowerCase()] ?? section.key}
+                  </h3>
+                  <p>{section.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
           <button
             type="button"
             className={styles.textButton}
