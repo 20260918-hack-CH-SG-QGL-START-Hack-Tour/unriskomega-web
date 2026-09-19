@@ -1,0 +1,52 @@
+.control {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
+}
+.control label {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.control select {
+  min-height: var(--space-10);
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+.control p,
+.error output {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+.error button {
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+  color: var(--text);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+}
+.generation {
+  display: flex;
+  gap: var(--space-3);
+  align-items: end;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.generation > .control {
+  flex: 1;
+}
+.chat {
+  padding: var(--space-4) var(--space-4) 0;
+}
+.briefing {
+  margin-block: var(--space-4);
+}
