@@ -220,7 +220,10 @@ export function Workspace() {
                   key={p.id}
                   portfolioId={p.id}
                   clientId={state.clientId}
-                  onImported={(id) => void state.refreshAfterImport(id)}
+                  onImported={(id) => {
+                    setTab("portfolios");
+                    void state.refreshAfterImport(id);
+                  }}
                   visible={tab === "assistant"}
                   clientAlias={
                     state.clients.find((client) => client.id === state.clientId)
@@ -234,7 +237,10 @@ export function Workspace() {
                   clientId={state.clientId}
                   portfolioId={p.id}
                   chatSessionId=""
-                  onImported={(id) => void state.refreshAfterImport(id)}
+                  onImported={(id) => {
+                    setTab("portfolios");
+                    void state.refreshAfterImport(id);
+                  }}
                 />
               )}
               {tab === "evidence" && (
