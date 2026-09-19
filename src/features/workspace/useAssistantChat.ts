@@ -11,6 +11,7 @@ import {
   parseGeneratedImage,
 } from "@/lib/models/chat";
 import { conversationHistory } from "@/lib/models/conversation";
+import { modelMessages } from "./modelMessages";
 
 export function useAssistantChat(
   portfolioId: string,
@@ -18,6 +19,7 @@ export function useAssistantChat(
   t: Messages,
   copy: ChatCopy,
   onMessage?: (message: ChatMessage) => void,
+  model?: string,
 ) {
   const listener = useRef(onMessage);
   listener.current = onMessage;
@@ -101,7 +103,7 @@ export function useAssistantChat(
         ]),
         body: JSON.stringify(
           image === null
-            ? { portfolioId, message: prompt, locale, ...scope }
+            ? { portfolioId, message: prompt, locale, ...scope, model }
             : { portfolioId, prompt: image, locale, ...scope },
         ),
       });
@@ -118,9 +120,11 @@ export function useAssistantChat(
     } catch (reason) {
       if (request.current === controller && !controller.signal.aborted)
         setError(
-          reason instanceof ApiError && reason.status === 503
-            ? t.providerUnavailable
-            : t.error,
+          reason instanceof ApiError && reason.code === "MODEL_NOT_ALLOWED"
+            ? modelMessages[locale].rejected
+            : reason instanceof ApiError && reason.status === 503
+              ? t.providerUnavailable
+              : t.error,
         );
     } finally {
       if (request.current === controller) {

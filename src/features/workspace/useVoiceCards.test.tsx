@@ -25,7 +25,7 @@ const answer = {
     },
   ],
 };
-function harness() {
+function harness(analysisModel = "selected-analysis") {
   const messages = new Map<string, ChatMessage>();
   let cards: ReturnType<typeof useVoiceCards> | undefined;
   function Harness() {
@@ -43,6 +43,7 @@ function harness() {
           ...update,
         });
       },
+      analysisModel,
     );
     return null;
   }
@@ -75,6 +76,8 @@ test("a spoken question automatically requests verified cards without replacing 
     expect(messages.get("voice-assistant-turn")).toMatchObject({
       text: "Actual spoken answer",
       visualText: "Verified visual summary",
+      visualModel: "verified-model",
+      model: "voice-model",
       visualPending: false,
       components: answer.components,
     });
@@ -83,6 +86,7 @@ test("a spoken question automatically requests verified cards without replacing 
       chatSessionId: "conversation-id",
       history: [{ role: "user", content: "Earlier question" }],
       message: "Show value",
+      model: "selected-analysis",
     });
   } finally {
     fetch.mockRestore();
@@ -90,8 +94,10 @@ test("a spoken question automatically requests verified cards without replacing 
 });
 test("spoken image requests use the same session context and attach their image to the turn", async () => {
   let path = "";
-  const fetch = mockFetch(async (url) => {
+  let body: Record<string, unknown> = {};
+  const fetch = mockFetch(async (url, options) => {
     path = String(url);
+    body = JSON.parse(String(options?.body));
     return Response.json({
       mimeType: "image/png",
       image: "YWJjZA==",
@@ -110,6 +116,7 @@ test("spoken image requests use the same session context and attach their image 
       "voice-model",
     );
     expect(path).toBe("/api/v1/images");
+    expect(body.model).toBeUndefined();
     expect(messages.get("voice-assistant-image")?.image?.src).toBe(
       "data:image/png;base64,YWJjZA==",
     );

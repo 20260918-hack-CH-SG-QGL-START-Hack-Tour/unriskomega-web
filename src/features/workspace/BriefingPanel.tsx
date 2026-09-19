@@ -4,6 +4,9 @@ import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { usePreferences } from "@/features/preferences/Preferences";
 import type { Briefing, Portfolio } from "@/lib/models/portfolio";
 import { BriefingAnswer } from "./BriefingAnswer";
+import { ModelSelector } from "./ModelSelector";
+import modelStyles from "./ModelSelectorStyles.module.css";
+import type { ModelSelection } from "./useModelSelection";
 import styles from "./WorkspaceStyles";
 export function BriefingPanel({
   briefing,
@@ -11,12 +14,14 @@ export function BriefingPanel({
   generating,
   onGenerate,
   onEvidence,
+  models,
 }: {
   briefing: Briefing | null;
   portfolio: Portfolio;
   generating: boolean;
   onGenerate: () => void;
   onEvidence: () => void;
+  models: ModelSelection;
 }) {
   const { t } = usePreferences();
   const [draft, setDraft] = useState("");
@@ -53,13 +58,19 @@ export function BriefingPanel({
         </div>
         <span className={styles.reviewBadge}>{t.humanReview}</span>
       </div>
+      <div className={modelStyles.briefing}>
+        <ModelSelector id="briefing-analysis-model" selection={models} />
+      </div>
       {briefing ? (
         <>
           <div className={styles.modeLabel}>
             <Icon name="shield" width="14" />
             {briefing.assistantResponse ? t.grounded : t.deterministic}
-            {briefing.assistantResponse?.model && (
-              <span> · {briefing.assistantResponse.model}</span>
+            {(briefing.assistantResponse?.model || briefing.model) && (
+              <span>
+                {" "}
+                · {briefing.assistantResponse?.model || briefing.model}
+              </span>
             )}
           </div>
           {briefing.assistantResponse ? (

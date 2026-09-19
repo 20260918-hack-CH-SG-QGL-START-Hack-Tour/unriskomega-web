@@ -3,6 +3,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     detail?: string,
+    public code?: string,
   ) {
     super(detail ?? `Request failed (${status})`);
   }
@@ -23,13 +24,19 @@ export async function api(
     if (response.status === 401 && typeof window !== "undefined")
       window.dispatchEvent(new Event("uro-session-expired"));
     let detail: string | undefined;
+    let code: string | undefined;
     try {
       const problem = await response.json();
       if (typeof problem.detail === "string") detail = problem.detail;
+      if (
+        typeof problem.code === "string" &&
+        /^[A-Z0-9_]{1,64}$/.test(problem.code)
+      )
+        code = problem.code;
     } catch {
       /* Non-JSON errors keep the HTTP status. */
     }
-    throw new ApiError(response.status, detail);
+    throw new ApiError(response.status, detail, code);
   }
   if (response.status === 204) return null;
   return response.json();

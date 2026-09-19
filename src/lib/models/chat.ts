@@ -37,6 +37,7 @@ export type ChatMessage = Partial<ChatAnswer> & {
   image?: GeneratedImage;
   spoken?: boolean;
   visualText?: string;
+  visualModel?: string;
   visualPending?: boolean;
   visualError?: boolean;
 };

@@ -9,6 +9,7 @@ import { chatMessages } from "@/lib/i18n/chat";
 import { conversationMessages } from "@/lib/i18n/conversation";
 import { imagePrompt } from "@/lib/models/chat";
 import {
+  type ConversationContext,
   type ConversationTurn,
   conversationNote,
 } from "@/lib/models/conversation";
@@ -17,9 +18,12 @@ import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
 import { ConversationHeader } from "./ConversationHeader";
 import { contextMessages } from "./contextMessages";
+import { ModelSelector } from "./ModelSelector";
+import modelStyles from "./ModelSelectorStyles.module.css";
 import { PortfolioContext } from "./PortfolioContext";
 import { useAssistantChat } from "./useAssistantChat";
 import { useDictationComposer } from "./useDictationComposer";
+import type { ModelSelection } from "./useModelSelection";
 import { useVoice } from "./useVoice";
 import { useVoiceCards } from "./useVoiceCards";
 import { VoiceControls } from "./VoiceControls";
@@ -33,6 +37,8 @@ export function AssistantPanel({
   clientAlias,
   portfolioName,
   portfolio,
+  models,
+  onContext,
 }: {
   portfolioId: string;
   clientId: string;
@@ -42,16 +48,36 @@ export function AssistantPanel({
   clientAlias: string;
   portfolioName: string;
   portfolio: Portfolio;
+  models: ModelSelection;
+  onContext: (
+    portfolioId: string,
+    context: (() => ConversationContext) | null,
+  ) => void;
 }) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
   const [refreshedVoice, setRefreshedVoice] = useState(false);
   const voiceNotes = useRef<((turn: ConversationTurn) => void) | null>(null);
-  const chat = useAssistantChat(portfolioId, locale, t, copy, (message) =>
-    voiceNotes.current?.(conversationNote(message)),
+  const chat = useAssistantChat(
+    portfolioId,
+    locale,
+    t,
+    copy,
+    (message) => voiceNotes.current?.(conversationNote(message)),
+    models.model,
   );
+  useEffect(() => {
+    onContext(portfolioId, chat.context);
+    return () => onContext(portfolioId, null);
+  }, [onContext, portfolioId, chat.context]);
   const conversation = conversationMessages[locale];
-  const cards = useVoiceCards(portfolioId, locale, chat.context, chat.upsert);
+  const cards = useVoiceCards(
+    portfolioId,
+    locale,
+    chat.context,
+    chat.upsert,
+    models.model,
+  );
   const composer = useRef<HTMLTextAreaElement>(null);
   const dictation = useDictationComposer(chat.input, chat.setInput);
   const voice = useVoice(
@@ -147,6 +173,9 @@ export function AssistantPanel({
         </output>
       )}
       <form className={styles.composer} onSubmit={submit}>
+        <div className={modelStyles.chat}>
+          <ModelSelector id="chat-analysis-model" selection={models} explain />
+        </div>
         <label htmlFor="companion-message" className={styles.srOnly}>
           {t.askPortfolio}
         </label>

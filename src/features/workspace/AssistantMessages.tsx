@@ -10,6 +10,7 @@ import type { ChatMessage } from "@/lib/models/chat";
 import responseStyles from "./AssistantResponseStyles.module.css";
 import styles from "./AssistantStyles.module.css";
 import { ChatImage } from "./ChatImage";
+import { modelMessages } from "./modelMessages";
 
 export function AssistantMessages({
   messages,
@@ -150,6 +151,11 @@ export function AssistantMessages({
                 </details>
               )}
               {message.model && <small>{message.model}</small>}
+              {message.visualModel && (
+                <small>
+                  {modelMessages[locale].analysisResult} · {message.visualModel}
+                </small>
+              )}
             </div>
           </article>
         ))

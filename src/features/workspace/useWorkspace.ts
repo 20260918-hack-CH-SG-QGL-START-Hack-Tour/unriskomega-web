@@ -1,9 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { api, record, string } from "@/lib/api/client";
+import { ApiError, api, record, string } from "@/lib/api/client";
 import { clientConfig } from "@/lib/config";
 import type { Locale } from "@/lib/i18n";
+import { dictionaries } from "@/lib/i18n";
+import type { ConversationContext } from "@/lib/models/conversation";
 import {
   type Briefing,
   type Client,
@@ -14,6 +16,7 @@ import {
   parsePortfolio,
   parseSummaries,
 } from "@/lib/models/portfolio";
+import { modelMessages } from "./modelMessages";
 export function useWorkspace(locale: Locale) {
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
@@ -25,6 +28,7 @@ export function useWorkspace(locale: Locale) {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
   const [user, setUser] = useState("");
   const version = useRef(0);
@@ -87,6 +91,7 @@ export function useWorkspace(locale: Locale) {
     setBriefing(null);
     setLoading(true);
     setError(false);
+    setGenerationError(null);
     api(`portfolios?clientId=${encodeURIComponent(clientId)}`)
       .then((data) => {
         if (!active) return;
@@ -117,6 +122,7 @@ export function useWorkspace(locale: Locale) {
     setBriefing(null);
     setLoading(true);
     setError(false);
+    setGenerationError(null);
     api(`portfolios/${encodeURIComponent(portfolioId)}`)
       .then((data) => {
         if (active && requestVersion === version.current)
@@ -254,21 +260,31 @@ export function useWorkspace(locale: Locale) {
       if (current === version.current) setError(true);
     }
   }
-  async function generate() {
+  async function generate(model?: string, context?: ConversationContext) {
     if (!portfolioId || generating) return;
     const current = version.current;
     setGenerating(true);
     setError(false);
+    setGenerationError(null);
     try {
       const value = parseBriefing(
         await api("briefings", {
           method: "POST",
-          body: JSON.stringify({ portfolioId, locale }),
+          body: JSON.stringify({ portfolioId, locale, ...context, model }),
         }),
       );
       if (current === version.current) setBriefing(value);
-    } catch {
-      if (current === version.current) setError(true);
+    } catch (reason) {
+      if (current === version.current) {
+        setError(true);
+        setGenerationError(
+          reason instanceof ApiError && reason.code === "MODEL_NOT_ALLOWED"
+            ? modelMessages[locale].rejected
+            : reason instanceof ApiError && reason.status === 503
+              ? dictionaries[locale].providerUnavailable
+              : dictionaries[locale].error,
+        );
+      }
     } finally {
       if (current === version.current) setGenerating(false);
     }
@@ -298,6 +314,7 @@ export function useWorkspace(locale: Locale) {
     loading,
     generating,
     error,
+    generationError,
     connected,
     user,
     generate,

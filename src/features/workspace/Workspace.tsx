@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Icon, type IconName } from "@/components/ui/data-display/Icon/Icon";
 import { DocumentLibrary } from "@/features/documents/DocumentLibrary";
 import {
@@ -9,20 +9,46 @@ import {
 import { formatNumber } from "@/lib/i18n";
 import { conversationMessages } from "@/lib/i18n/conversation";
 import { gapLabel } from "@/lib/i18n/portfolioLabels";
+import type { ConversationContext } from "@/lib/models/conversation";
 import { AssistantPanel } from "./AssistantPanel";
 import { BriefingPanel } from "./BriefingPanel";
 import { MarketSourcesPanel } from "./MarketSourcesPanel";
+import { ModelSelector } from "./ModelSelector";
+import modelStyles from "./ModelSelectorStyles.module.css";
 import {
   AllocationPanel,
   FindingsPanel,
   HoldingsPanel,
 } from "./PortfolioPanels";
+import { useModelSelection } from "./useModelSelection";
 import { useWorkspace } from "./useWorkspace";
 import { type Tab, WorkspaceNavigation } from "./WorkspaceNavigation";
 import styles from "./WorkspaceStyles";
 export function Workspace() {
   const { t, locale } = usePreferences();
   const state = useWorkspace(locale);
+  const models = useModelSelection();
+  const conversation = useRef<{
+    portfolioId: string;
+    context: () => ConversationContext;
+  } | null>(null);
+  const registerContext = useCallback(
+    (portfolioId: string, context: (() => ConversationContext) | null) => {
+      if (context) conversation.current = { portfolioId, context };
+      else if (conversation.current?.portfolioId === portfolioId)
+        conversation.current = null;
+    },
+    [],
+  );
+  function generate() {
+    const context = conversation.current;
+    void state.generate(
+      models.model,
+      context?.portfolioId === state.portfolioId
+        ? context.context()
+        : undefined,
+    );
+  }
   const [tab, setTab] = useState<Tab>("overview");
   const [menu, setMenu] = useState(false);
   const p = state.portfolio;
@@ -81,18 +107,21 @@ export function Workspace() {
               <h1>{t.goodMorning}</h1>
               <p>{t.dashboardSubtitle}</p>
             </div>
-            <button
-              className={styles.primaryButton}
-              type="button"
-              disabled={!p || state.generating}
-              onClick={() => {
-                setTab("overview");
-                void state.generate();
-              }}
-            >
-              <Icon name="spark" width="18" />
-              {state.generating ? t.generating : t.generate}
-            </button>
+            <div className={modelStyles.generation}>
+              <ModelSelector id="workspace-analysis-model" selection={models} />
+              <button
+                className={styles.primaryButton}
+                type="button"
+                disabled={!p || state.generating}
+                onClick={() => {
+                  setTab("overview");
+                  generate();
+                }}
+              >
+                <Icon name="spark" width="18" />
+                {state.generating ? t.generating : t.generate}
+              </button>
+            </div>
           </div>
           <div className={styles.contextBar}>
             <div>
@@ -133,8 +162,16 @@ export function Workspace() {
           {state.error && (
             <div className={styles.error} role="alert">
               <Icon name="info" />
-              {t.error}
-              <button type="button" onClick={() => location.reload()}>
+              {state.generationError ?? t.error}
+              <button
+                type="button"
+                onClick={() => {
+                  if (state.generationError) {
+                    setTab("overview");
+                    generate();
+                  } else location.reload();
+                }}
+              >
                 {t.retry}
               </button>
             </div>
@@ -193,7 +230,8 @@ export function Workspace() {
                       portfolio={p}
                       briefing={state.briefing}
                       generating={state.generating}
-                      onGenerate={() => void state.generate()}
+                      onGenerate={generate}
+                      models={models}
                       onEvidence={() => setTab("evidence")}
                     />
                   </div>
@@ -232,6 +270,8 @@ export function Workspace() {
                   }
                   portfolioName={p.name}
                   portfolio={p}
+                  models={models}
+                  onContext={registerContext}
                 />
               </div>
               {tab === "documents" && (

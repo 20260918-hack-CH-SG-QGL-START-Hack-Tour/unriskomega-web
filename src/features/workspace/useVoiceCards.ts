@@ -18,10 +18,11 @@ export function useVoiceCards(
   locale: Locale,
   context: (excludeIds?: string[]) => ConversationContext,
   upsert: (update: MessageUpdate) => void,
+  analysisModel?: string,
 ) {
   const requests = useRef(new Map<string, AbortController>());
-  const callbacks = useRef({ context, upsert });
-  callbacks.current = { context, upsert };
+  const callbacks = useRef({ context, upsert, analysisModel });
+  callbacks.current = { context, upsert, analysisModel };
   useEffect(
     () => () => {
       for (const request of requests.current.values()) request.abort();
@@ -92,7 +93,10 @@ export function useVoiceCards(
           locale,
           ...scope,
           ...(image === null
-            ? { message: transcript.text }
+            ? {
+                message: transcript.text,
+                model: callbacks.current.analysisModel,
+              }
             : { prompt: image }),
         }),
       });
@@ -110,6 +114,7 @@ export function useVoiceCards(
               warnings: answer.warnings,
               outcome: answer.outcome,
               visualText: answer.text,
+              visualModel: answer.model,
             }
           : { image: parseGeneratedImage(data) }),
       });
