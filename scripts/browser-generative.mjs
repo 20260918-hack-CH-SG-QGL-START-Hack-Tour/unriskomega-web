@@ -188,9 +188,27 @@ export async function verifyGenerativeChat(page, check, shot) {
 }
 
 export async function verifyLiveStructuredChat(page, check, shot) {
-  for (const [index, prompt] of [
-    "Show the portfolio allocation as a chart and explain the largest concentration using only the supplied snapshot. Cite sources.",
-    "Show the total portfolio value as a metric card and compare allocation categories in a table. Preserve source units and cite the snapshot.",
+  for (const [index, { prompt, expectedTypes }] of [
+    {
+      prompt:
+        "Show the portfolio allocation as a chart and explain the largest concentration using only the supplied snapshot. Cite sources.",
+      expectedTypes: ["chart"],
+    },
+    {
+      prompt:
+        "Show the total portfolio value as a metric card and compare allocation categories in a table. Preserve source units and cite the snapshot.",
+      expectedTypes: ["metric", "table"],
+    },
+    {
+      prompt:
+        "Show a clearly conceptual diagram of how portfolio evidence informs an advisor review, plus an evidence card citing the supplied snapshot. Do not imply trades or actions occurred.",
+      expectedTypes: ["diagram", "evidence"],
+    },
+    {
+      prompt:
+        "For a purely hypothetical scenario unrelated to actual portfolio returns, start with CHF 1000 and apply 5 percent annual compound growth for 3 years, with no contributions, taxes or fees. Show years 0 through 3 in a projection chart and state these assumptions. This is not a forecast.",
+      expectedTypes: ["projection"],
+    },
   ].entries()) {
     const before = await page.locator("article").count();
     await page
@@ -212,7 +230,6 @@ export async function verifyLiveStructuredChat(page, check, shot) {
     assert.ok(answer.model);
     assert.equal(answer.outcome.status, "accepted");
     assert.equal(answer.outcome.verification.status, "passed");
-    const expectedTypes = index === 0 ? ["chart"] : ["metric", "table"];
     const componentTypes = answer.components.map((component) => component.type);
     for (const type of expectedTypes) {
       assert.ok(
