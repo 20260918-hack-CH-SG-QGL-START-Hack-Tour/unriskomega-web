@@ -5,6 +5,7 @@ import {
   verifyGenerativeChat,
   verifyLiveStructuredChat,
 } from "./browser-generative.mjs";
+import { verifyLiveImage } from "./browser-image.mjs";
 import { verifyClientSwitchIsolation } from "./browser-scope.mjs";
 import {
   assertVoiceConnected,
@@ -100,7 +101,7 @@ try {
     await page.goto(`${base}/deck/JO202609190900`);
     await page
       .getByRole("heading", {
-        name: "Portfolio context. Ready for the conversation.",
+        name: "Portfolio context. Ready for the call.",
       })
       .first()
       .waitFor();
@@ -108,7 +109,7 @@ try {
     await page.getByRole("button", { name: "Next slide", exact: true }).click();
     await page
       .getByRole("heading", {
-        name: "The client calls. The context is scattered.",
+        name: "The question arrives. The context is scattered.",
       })
       .first()
       .waitFor();
@@ -195,22 +196,7 @@ try {
     if (phases.includes("chat")) await verifyGenerativeChat(page, check, shot);
     if (phases.includes("providers")) {
       await verifyLiveStructuredChat(page, check, shot);
-      await page
-        .getByRole("button", { name: "Create image", exact: true })
-        .click();
-      await page
-        .getByLabel("Ask about this portfolio", { exact: true })
-        .fill(
-          "/image A minimalist emerald landscape illustration for a financial planning conversation, no numbers, no text.",
-        );
-      await page
-        .getByRole("button", { name: "Send message", exact: true })
-        .click();
-      await page
-        .getByAltText("AI-generated illustration")
-        .waitFor({ timeout: 120000 });
-      await shot("workspace-image");
-      check("actual provider image generation");
+      await verifyLiveImage(page, check, shot);
       for (const [label, mode] of [
         ["Voice conversation", "conversation"],
         ["Dictate message", "transcription"],
