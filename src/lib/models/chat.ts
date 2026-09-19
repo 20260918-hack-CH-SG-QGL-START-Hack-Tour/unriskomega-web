@@ -30,6 +30,10 @@ export type ChatMessage = Partial<ChatAnswer> & {
   role: "user" | "assistant";
   text: string;
   image?: GeneratedImage;
+  spoken?: boolean;
+  visualText?: string;
+  visualPending?: boolean;
+  visualError?: boolean;
 };
 function parseOutcome(value: unknown): ChatOutcome | undefined {
   if (value == null) return undefined;

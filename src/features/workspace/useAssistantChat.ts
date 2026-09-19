@@ -42,10 +42,27 @@ export function useAssistantChat(
     messageRef.current = next;
     setMessages(next);
   }, []);
-  function context() {
+  const upsert = useCallback(
+    (update: Pick<ChatMessage, "id" | "role"> & Partial<ChatMessage>) => {
+      const index = messageRef.current.findIndex(
+        (item) => item.id === update.id,
+      );
+      const next = [...messageRef.current];
+      if (index < 0) next.push({ text: "", ...update });
+      else next[index] = { ...next[index], ...update };
+      messageRef.current = next;
+      setMessages(next);
+    },
+    [],
+  );
+  function context(excludeIds: string[] = []) {
     return {
       chatSessionId: sessionId,
-      history: conversationHistory(messageRef.current),
+      history: conversationHistory(
+        messageRef.current.filter(
+          (message) => !excludeIds.includes(message.id),
+        ),
+      ),
     };
   }
   function cancel() {
@@ -117,6 +134,7 @@ export function useAssistantChat(
     pending,
     error,
     append,
+    upsert,
     submit,
     cancel,
   };

@@ -5,6 +5,7 @@ import { AnswerText } from "@/components/ui/data-display/AnswerText/AnswerText";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { usePreferences } from "@/features/preferences/Preferences";
 import { chatMessages, chatNotice } from "@/lib/i18n/chat";
+import { conversationMessages } from "@/lib/i18n/conversation";
 import type { ChatMessage } from "@/lib/models/chat";
 import responseStyles from "./AssistantResponseStyles.module.css";
 import styles from "./AssistantStyles.module.css";
@@ -21,6 +22,7 @@ export function AssistantMessages({
 }) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
+  const conversation = conversationMessages[locale];
   const scroll = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (messages.length && scroll.current)
@@ -75,7 +77,20 @@ export function AssistantMessages({
               />
             </span>
             <div>
-              <AnswerText text={message.text} />
+              {message.spoken && <small>{conversation.sourceTranscript}</small>}
+              <AnswerText text={message.text || message.visualText || ""} />
+              {message.visualPending && (
+                <output>{conversation.visualPending}</output>
+              )}
+              {message.visualError && (
+                <output>{conversation.visualError}</output>
+              )}
+              {message.text && message.visualText && (
+                <details className={responseStyles.answerEvidence}>
+                  <summary>{copy.sources}</summary>
+                  <AnswerText text={message.visualText} />
+                </details>
+              )}
               {!!message.warnings?.length && (
                 <ul className={responseStyles.warnings}>
                   {message.warnings.map((warning, index) => (

@@ -5,6 +5,8 @@ export const clientConfig = {
   requestTimeoutMs: 120000,
   maxMessageLength: 4000,
   maxImagePromptLength: 2000,
-  maxVoiceDurationMs: 60000,
+  maxVoiceDurationMs: 1800000,
+  maxDictationDurationMs: 60000,
+  maxVoiceVisualRequests: 2,
   dictationFinalizeTimeoutMs: 3000,
 };

@@ -8,6 +8,12 @@ import {
   type SpokenTranscript,
   VoiceTranscriptLedger,
 } from "@/lib/models/voice";
+import {
+  muteMicrophone,
+  terminalVoiceError,
+  VoiceTurnLedger,
+  voiceDurationSeconds,
+} from "@/lib/models/voiceTurns";
 export function useVoice(
   portfolioId: string,
   locale: Locale,
@@ -17,7 +23,11 @@ export function useVoice(
     model: string,
     transcript: SpokenTranscript,
   ) => void,
-  onResponse: (text: string, model: string) => void,
+  onResponse: (
+    text: string,
+    model: string,
+    transcript: SpokenTranscript,
+  ) => void,
   onDiscard: () => void,
   context?: () => ConversationContext,
 ) {
@@ -27,6 +37,16 @@ export function useVoice(
   const [voiceMode, setVoiceMode] = useState<
     "conversation" | "transcription" | null
   >(null);
+  const [recoverableError, setRecoverableError] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(
+    clientConfig.maxVoiceDurationMs / 1000,
+  );
+  const countdown = useRef<ReturnType<typeof setInterval> | undefined>(
+    undefined,
+  );
+  const turns = useRef(new VoiceTurnLedger("initial"));
   const peer = useRef<RTCPeerConnection | null>(null);
   const channel = useRef<RTCDataChannel | null>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -45,6 +65,7 @@ export function useVoice(
   const close = useCallback((discard = true) => {
     generation.current++;
     clearTimeout(timeout.current);
+    clearInterval(countdown.current);
     clearTimeout(finalTimeout.current);
     if (discard && activeMode.current === "transcription")
       callbacks.current.onDiscard();
@@ -62,6 +83,9 @@ export function useVoice(
       audio.current.pause();
       audio.current.srcObject = null;
     }
+    setRecoverableError(false);
+    setMuted(false);
+    setSpeaking(false);
     setVoiceMode(null);
     setState("idle");
   }, []);
@@ -99,12 +123,13 @@ export function useVoice(
   async function start(mode: "conversation" | "transcription") {
     cancel();
     transcripts.current.reset();
+    turns.current = new VoiceTurnLedger(crypto.randomUUID());
     model.current = "";
     activeMode.current = mode;
     setVoiceMode(mode);
     const current = generation.current;
     setState("connecting");
-    timeout.current = setTimeout(stop, clientConfig.maxVoiceDurationMs);
+    timeout.current = setTimeout(stop, clientConfig.requestTimeoutMs);
     try {
       const media = await navigator.mediaDevices.getUserMedia({ audio: true });
       if (current !== generation.current) {
@@ -170,6 +195,24 @@ export function useVoice(
       );
       if (current !== generation.current) return;
       model.current = string(answer.model);
+      const seconds =
+        mode === "transcription"
+          ? clientConfig.maxDictationDurationMs / 1000
+          : voiceDurationSeconds(
+              answer.maxDurationSeconds,
+              clientConfig.maxVoiceDurationMs / 1000,
+            );
+      const deadline = Date.now() + seconds * 1000;
+      setRemainingSeconds(seconds);
+      clearTimeout(timeout.current);
+      timeout.current = setTimeout(stop, seconds * 1000);
+      countdown.current = setInterval(
+        () =>
+          setRemainingSeconds(
+            Math.max(0, Math.ceil((deadline - Date.now()) / 1000)),
+          ),
+        1000,
+      );
       await connection.setRemoteDescription({
         type: "answer",
         sdp: string(answer.sdp),
@@ -183,9 +226,20 @@ export function useVoice(
   function handleEvent(raw: string, mode: "conversation" | "transcription") {
     try {
       const event = record(JSON.parse(raw));
-      const transcript = transcripts.current.accept(event, {
+      turns.current.observe(event);
+      if (event.type === "output_audio_buffer.started") setSpeaking(true);
+      if (
+        event.type === "output_audio_buffer.stopped" ||
+        event.type === "output_audio_buffer.cleared"
+      )
+        setSpeaking(false);
+      const accepted = transcripts.current.accept(event, {
         partials: mode === "transcription",
       });
+      const transcript =
+        accepted && mode === "conversation"
+          ? turns.current.attach(event, accepted)
+          : accepted;
       if (transcript?.role === "user")
         callbacks.current.onTranscript(
           transcript.text,
@@ -194,16 +248,40 @@ export function useVoice(
           transcript,
         );
       if (transcript?.role === "assistant" && mode === "conversation")
-        callbacks.current.onResponse(transcript.text, model.current);
+        callbacks.current.onResponse(
+          transcript.text,
+          model.current,
+          transcript,
+        );
       if (transcript?.role === "user" && transcript.final && finalizing.current)
         close(false);
+      if (event.type === "input_audio_buffer.speech_started")
+        setRecoverableError(false);
       if (event.type === "error") {
-        cancel();
-        setState("error");
+        if (terminalVoiceError(event.error)) {
+          cancel();
+          setState("error");
+        } else setRecoverableError(true);
       }
     } catch {
       console.warn("Invalid voice event rejected");
     }
   }
-  return { voiceState, voiceMode, start, stop, cancel };
+  function toggleMute() {
+    const next = !muted;
+    muteMicrophone(stream.current, next);
+    setMuted(next);
+  }
+  return {
+    voiceState,
+    voiceMode,
+    recoverableError,
+    muted,
+    speaking,
+    remainingSeconds,
+    toggleMute,
+    start,
+    stop,
+    cancel,
+  };
 }

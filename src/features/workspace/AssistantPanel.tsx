@@ -5,6 +5,7 @@ import { Tooltip } from "@/components/ui/overlays/Tooltip/Tooltip";
 import { usePreferences } from "@/features/preferences/Preferences";
 import { clientConfig } from "@/lib/config";
 import { chatMessages } from "@/lib/i18n/chat";
+import { conversationMessages } from "@/lib/i18n/conversation";
 import { imagePrompt } from "@/lib/models/chat";
 import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
@@ -12,6 +13,8 @@ import { ConversationHeader } from "./ConversationHeader";
 import { useAssistantChat } from "./useAssistantChat";
 import { useDictationComposer } from "./useDictationComposer";
 import { useVoice } from "./useVoice";
+import { useVoiceCards } from "./useVoiceCards";
+import { VoiceControls } from "./VoiceControls";
 
 export function AssistantPanel({
   portfolioId,
@@ -25,18 +28,20 @@ export function AssistantPanel({
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
   const chat = useAssistantChat(portfolioId, locale, t, copy);
+  const conversation = conversationMessages[locale];
+  const cards = useVoiceCards(portfolioId, locale, chat.context, chat.upsert);
   const composer = useRef<HTMLTextAreaElement>(null);
   const dictation = useDictationComposer(chat.input, chat.setInput);
   const voice = useVoice(
     portfolioId,
     locale,
-    (text, mode, model, transcript) => {
+    (_text, mode, model, transcript) => {
       if (mode === "conversation")
-        chat.append({ role: "user", text, model: `${t.voice} · ${model}` });
+        void cards.receiveQuestion(transcript, `${t.voice} · ${model}`);
       else dictation.accept(transcript);
     },
-    (text, model) =>
-      chat.append({ role: "assistant", text, model: `${t.voice} · ${model}` }),
+    (_text, model, transcript) =>
+      cards.receiveResponse(transcript, `${t.voice} · ${model}`),
     dictation.discard,
     chat.context,
   );
@@ -48,7 +53,6 @@ export function AssistantPanel({
   function submit(event?: FormEvent) {
     event?.preventDefault();
     if (dictating) return;
-    if (wantsImage && active) voice.cancel();
     void chat.submit();
   }
   function choosePrompt(prompt: string) {
@@ -86,6 +90,11 @@ export function AssistantPanel({
           {t.voiceError}
         </p>
       )}
+      {voice.recoverableError && (
+        <output className={styles.status}>
+          {conversation.voiceRecoverable}
+        </output>
+      )}
       <form className={styles.composer} onSubmit={submit}>
         <label htmlFor="companion-message" className={styles.srOnly}>
           {t.askPortfolio}
@@ -113,38 +122,11 @@ export function AssistantPanel({
         {wantsImage && <p className={styles.imageHint}>{t.imageHint}</p>}
         <div className={styles.composerActions}>
           <div>
-            <Tooltip label={active ? t.stopVoice : copy.voiceHelp}>
-              <button
-                type="button"
-                onClick={() =>
-                  active ? voice.stop() : void voice.start("conversation")
-                }
-                aria-label={active ? t.stopVoice : t.voice}
-                aria-pressed={active}
-                disabled={voice.voiceState === "finalizing"}
-              >
-                <Icon name={active ? "stop" : "mic"} width="18" />
-                <span>{active ? t.stopVoice : t.voice}</span>
-              </button>
-            </Tooltip>
-            <Tooltip label={copy.dictateHelp}>
-              <button
-                type="button"
-                onClick={() => {
-                  dictation.begin();
-                  void voice.start("transcription");
-                }}
-                disabled={active}
-                aria-label={t.dictate}
-              >
-                <Icon name="book" width="18" />
-              </button>
-            </Tooltip>
+            <VoiceControls voice={voice} beginDictation={dictation.begin} />
             <Tooltip label={copy.imageHelp}>
               <button
                 type="button"
                 onClick={() => {
-                  voice.cancel();
                   choosePrompt("/image ");
                 }}
                 disabled={dictating || !!chat.pending}
@@ -173,12 +155,21 @@ export function AssistantPanel({
             ? t.voiceConnecting
             : voice.voiceState === "finalizing"
               ? t.voiceFinalizing
-              : t.voiceActive}
+              : voice.muted
+                ? conversation.muted
+                : voice.speaking
+                  ? conversation.speaking
+                  : conversation.listening}
+          <span>
+            {conversation.voiceBudget} ·{" "}
+            {Math.floor(voice.remainingSeconds / 60)}:
+            {String(voice.remainingSeconds % 60).padStart(2, "0")}
+          </span>
         </output>
       )}
       <footer>
         <Icon name="shield" width="12" />
-        {t.noTrading} · {t.voiceLimit}
+        {t.noTrading} · {conversation.voiceLimit}
       </footer>
     </section>
   );

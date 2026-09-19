@@ -26,6 +26,8 @@ const en = {
   visualError:
     "Visual evidence is unavailable for this turn. The spoken conversation can continue.",
   sourceTranscript: "Spoken response",
+  voiceRecoverable:
+    "This voice turn could not complete. The call is still connected; please try again.",
   documents: "Documents",
   continueCall:
     "Voice conversation stays connected while you type or create an image.",
@@ -59,6 +61,8 @@ export const conversationMessages: Record<Locale, ConversationCopy> = {
     visualError:
       "No hay pruebas visuales disponibles para este turno. La conversación de voz puede continuar.",
     sourceTranscript: "Respuesta hablada",
+    voiceRecoverable:
+      "Este turno no pudo completarse. La llamada sigue conectada; inténtalo de nuevo.",
     documents: "Documentos",
     continueCall:
       "La conversación de voz sigue conectada mientras escribes o creas una imagen.",
@@ -89,6 +93,8 @@ export const conversationMessages: Record<Locale, ConversationCopy> = {
     visualError:
       "Für diesen Beitrag sind keine visuellen Belege verfügbar. Das Sprachgespräch kann weitergehen.",
     sourceTranscript: "Gesprochene Antwort",
+    voiceRecoverable:
+      "Dieser Beitrag konnte nicht abgeschlossen werden. Das Gespräch bleibt verbunden; bitte erneut versuchen.",
     documents: "Dokumente",
     continueCall:
       "Das Sprachgespräch bleibt beim Tippen oder Erstellen eines Bildes verbunden.",
@@ -119,6 +125,8 @@ export const conversationMessages: Record<Locale, ConversationCopy> = {
     visualError:
       "Les preuves visuelles sont indisponibles pour ce tour. La conversation vocale peut continuer.",
     sourceTranscript: "Réponse vocale",
+    voiceRecoverable:
+      "Ce tour n’a pas pu se terminer. L’appel reste connecté ; veuillez réessayer.",
     documents: "Documents",
     continueCall:
       "La conversation vocale reste connectée pendant la saisie ou la création d’une image.",

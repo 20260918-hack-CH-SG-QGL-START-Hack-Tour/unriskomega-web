@@ -178,6 +178,7 @@
 .composerActions > div {
   display: flex;
   gap: var(--space-1);
+  flex-wrap: wrap;
 }
 .composerActions button {
   background: transparent;
@@ -228,6 +229,7 @@
   animation: pulse 1.4s ease infinite;
 }
 .voiceStatus {
+  flex-wrap: wrap;
   color: var(--accent);
 }
 .error {
