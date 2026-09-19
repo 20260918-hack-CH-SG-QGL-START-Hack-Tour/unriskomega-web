@@ -283,9 +283,11 @@ export function useWorkspace(locale: Locale) {
         setGenerationError(
           reason instanceof ApiError && reason.code === "MODEL_NOT_ALLOWED"
             ? modelMessages[locale].rejected
-            : reason instanceof ApiError && reason.status === 503
-              ? dictionaries[locale].providerUnavailable
-              : dictionaries[locale].error,
+            : reason instanceof ApiError && reason.code === "AI_REVIEW_REQUIRED"
+              ? modelMessages[locale].reviewRequired
+              : reason instanceof ApiError && reason.status === 503
+                ? dictionaries[locale].providerUnavailable
+                : dictionaries[locale].error,
         );
       }
     } finally {

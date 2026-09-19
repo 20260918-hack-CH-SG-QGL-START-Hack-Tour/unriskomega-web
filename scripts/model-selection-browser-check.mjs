@@ -107,7 +107,8 @@ async function fixture() {
     firstBody,
     briefingBody,
     alias = "",
-    chatCount = 0;
+    chatCount = 0,
+    rejectBriefing = false;
   const answer = (model, text) => ({
     model,
     text,
@@ -213,6 +214,15 @@ async function fixture() {
       model: briefingBody.model,
       session: briefingBody.chatSessionId,
     });
+    if (rejectBriefing)
+      return route.fulfill({
+        status: 422,
+        json: {
+          code: "AI_REVIEW_REQUIRED",
+          detail:
+            "This draft did not pass verification. Review the source information or ask a more focused question.",
+        },
+      });
     await briefGate.promise;
     return route.fulfill({
       json: {
@@ -358,6 +368,34 @@ async function fixture() {
     );
     check(
       "fixture: briefing captures the selected model and conversation, then its structured action survives the next model switch exactly once",
+    );
+    const assistantMessages = page.locator(
+      'article[class*="assistantMessage"]',
+    );
+    await expect(assistantMessages.last()).toContainText(
+      "Explain the action from the briefing",
+    );
+    const retainedMessages = await assistantMessages.count();
+    rejectBriefing = true;
+    const reviewResponse = page.waitForResponse((response) =>
+      isPost(response.request(), "briefings"),
+    );
+    await page
+      .getByRole("button", { name: "Generate briefing", exact: true })
+      .first()
+      .click();
+    assert.equal((await reviewResponse).status(), 422);
+    await expect(
+      page.getByRole("alert").filter({
+        hasText: "This draft did not pass verification",
+      }),
+    ).toBeVisible();
+    await expect(page.locator("#workspace-analysis-model")).toHaveValue(modelA);
+    await openChat(page);
+    await expect(assistantMessages).toHaveCount(retainedMessages);
+    assert.equal(briefingBody.chatSessionId, firstBody.chatSessionId);
+    check(
+      "fixture: a review-required briefing shows its verification error and preserves the selected model and conversation without inserting a failed draft",
     );
     await locales(page);
     await mobile(page, "fixture-mobile-models");
