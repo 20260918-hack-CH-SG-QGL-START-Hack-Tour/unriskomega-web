@@ -29,8 +29,11 @@ try {
     assert.equal(response.status(), 200, `${mode} SDP status`);
     await assertVoiceConnected(page);
     if (speechFixture && mode === "conversation") {
-      await page.waitForFunction(() => document.querySelectorAll("article p").length >= 2,
-        undefined, { timeout: 45000 });
+      await Promise.all(["user", "assistant"].map(role =>
+        page.locator(`article[class*="${role}Message"] p`)
+          .filter({ hasText: /\S/ }).first()
+          .waitFor({ state: "visible", timeout: 45000 }),
+      ));
       console.log("PASS synthetic speech produced visible user and assistant conversation turns");
     }
     if (speechFixture && mode === "transcription") {
