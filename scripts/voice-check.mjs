@@ -15,6 +15,7 @@ await mkdir(output, { recursive: true });
 const checks = [];
 let completed = false;
 let failure = null;
+let conversationEvidence = null;
 function check(message) {
   checks.push(message);
   console.log(`PASS ${message}`);
@@ -79,6 +80,21 @@ try {
           .waitFor({ state: "visible", timeout: 120000 });
         check(`actual spoken prompt automatically produced ${type} component`);
       }
+      conversationEvidence = await page.evaluate(() => ({
+        selectedClient: document.querySelector("#client-select option:checked")
+          ?.textContent,
+        selectedPortfolio: document.querySelector(
+          "#portfolio-select option:checked",
+        )?.textContent,
+        turns: Array.from(
+          document.querySelectorAll("article[class*=Message] p"),
+        )
+          .map((element) => element.textContent?.slice(0, 4000))
+          .filter(Boolean),
+        components: Array.from(
+          document.querySelectorAll("[data-component-type]"),
+        ).map((element) => element.getAttribute("data-component-type")),
+      }));
       await page.screenshot({
         path: `${output}/spoken-visual-response.png`,
         fullPage: true,
@@ -134,7 +150,11 @@ try {
 } finally {
   await writeFile(
     `${output}/results.json`,
-    JSON.stringify({ completed, failure, checks }, null, 2),
+    JSON.stringify(
+      { completed, failure, checks, conversationEvidence },
+      null,
+      2,
+    ),
   );
   await browser.close();
 }
