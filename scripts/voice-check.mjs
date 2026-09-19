@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { mkdir, writeFile } from "node:fs/promises";
 import { chromium } from "@playwright/test";
 import {
   assertVoiceConnected,
@@ -9,6 +10,15 @@ import {
 
 const base = process.env.QA_BASE_URL ?? "http://localhost:3000";
 const speechFixture = process.env.QA_AUDIO_PATH;
+const output = process.env.QA_OUTPUT_DIR ?? "/tmp/unriskomega-voice-qa";
+await mkdir(output, { recursive: true });
+const checks = [];
+let completed = false;
+let failure = null;
+function check(message) {
+  checks.push(message);
+  console.log(`PASS ${message}`);
+}
 const browser = await chromium.launch({
   executablePath: process.env.QA_CHROMIUM_PATH,
   headless: true,
@@ -67,12 +77,14 @@ try {
           )
           .first()
           .waitFor({ state: "visible", timeout: 120000 });
-        console.log(
-          `PASS actual spoken prompt automatically produced ${type} component`,
-        );
+        check(`actual spoken prompt automatically produced ${type} component`);
       }
-      console.log(
-        "PASS synthetic speech produced visible user and assistant conversation turns",
+      await page.screenshot({
+        path: `${output}/spoken-visual-response.png`,
+        fullPage: true,
+      });
+      check(
+        "synthetic speech produced visible user and assistant conversation turns",
       );
     }
     if (speechFixture && mode === "transcription") {
@@ -88,6 +100,10 @@ try {
         .getByRole("button", { name: "Mute microphone", exact: true })
         .click();
       await assertVoiceMuted(page, true);
+      await page.screenshot({
+        path: `${output}/microphone-muted.png`,
+        fullPage: true,
+      });
       await page
         .getByRole("button", { name: "Unmute microphone", exact: true })
         .click();
@@ -105,14 +121,20 @@ try {
         (await page.locator("#companion-message").inputValue()).trim().length >
           10,
       );
-      console.log(
-        "PASS synthetic dictation remains in composer after microphone stop",
-      );
+      check("synthetic dictation remains in composer after microphone stop");
     }
-    console.log(
-      `PASS ${mode}: live peer/data channel connected; all synthetic microphone tracks stopped`,
+    check(
+      `${mode}: live peer/data channel connected; all synthetic microphone tracks stopped`,
     );
   }
+  completed = true;
+} catch (error) {
+  failure = error.stack;
+  throw error;
 } finally {
+  await writeFile(
+    `${output}/results.json`,
+    JSON.stringify({ completed, failure, checks }, null, 2),
+  );
   await browser.close();
 }
