@@ -42,12 +42,16 @@ export async function checkDeck(page, base, output, screenshot, check) {
   await page.locator("main").click({ position: { x: 5, y: 5 } });
   await page.keyboard.press("ArrowRight");
   await page.locator('main article[data-kind="problem"]').waitFor();
-  await page.pdf({
+  const pdf = await page.pdf({
     path: `${output}/pitch-deck-en.pdf`,
     width: "16in",
     height: "9in",
     printBackground: true,
   });
+  assert.equal(
+    (pdf.toString("latin1").match(/\/Type\s*\/Page\b/g) ?? []).length,
+    10,
+  );
   await page.getByRole("button", { name: "Dark mode", exact: true }).click();
   await screenshot("deck-dark");
   await page.setViewportSize({ width: 390, height: 844 });
