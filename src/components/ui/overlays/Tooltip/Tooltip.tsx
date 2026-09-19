@@ -3,6 +3,7 @@ import {
   type ComponentProps,
   cloneElement,
   type ReactElement,
+  useEffect,
   useId,
   useState,
 } from "react";
@@ -22,7 +23,16 @@ export function Tooltip({
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const visible = (hovered || focused) && !dismissed;
+  const disabled = children.props.disabled === true;
+  const visible = !disabled && (hovered || focused) && !dismissed;
+  useEffect(() => {
+    if (disabled) {
+      // Disabling a focused native button does not reliably emit blur.
+      setFocused(false);
+      setHovered(false);
+      setDismissed(true);
+    }
+  }, [disabled]);
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: Hover belongs to the wrapper so the tooltip remains hoverable; keyboard interaction stays on the native button.
     <span
@@ -47,6 +57,11 @@ export function Tooltip({
         onBlur: (event) => {
           setFocused(false);
           children.props.onBlur?.(event);
+        },
+        onClick: (event) => {
+          setFocused(false);
+          setDismissed(true);
+          children.props.onClick?.(event);
         },
         onKeyDown: (event) => {
           if (event.key === "Escape") {
