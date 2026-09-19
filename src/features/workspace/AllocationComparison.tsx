@@ -11,14 +11,13 @@ export function AllocationComparison({ portfolio }: { portfolio: Portfolio }) {
   const { locale, t } = usePreferences();
   const copy = contextMessages[locale];
   const gaps = allocationGaps(portfolio);
-  if (!gaps.length) return null;
   return (
     <section className={styles.comparison} aria-label={copy.gap}>
       <header>
         <h3>{copy.gap}</h3>
         <span>{portfolio.reportingCurrency}</span>
       </header>
-      <p>{copy.explanation}</p>
+      <p>{gaps.length ? copy.explanation : copy.targetUnavailable}</p>
       {gaps.map((gap) => (
         <div className={styles.gapRow} key={gap.assetClass}>
           <div>

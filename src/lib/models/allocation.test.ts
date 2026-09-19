@@ -19,3 +19,15 @@ test("allocation gaps use the current portfolio value and preserve a real zero t
     { assetClass: "Other", amount: -6000 },
   ]);
 });
+
+test("empty target templates and invalid mandates cannot imply a sell-all allocation", () => {
+  const row = { assetClass: "Equities", weight: 97.9, min: null, max: null };
+  for (const targets of [[0, 0], [60, 50], [101], [-1], [Number.NaN]]) {
+    expect(
+      allocationGaps({
+        totalValue: 100000,
+        allocation: targets.map((target) => ({ ...row, target })),
+      }),
+    ).toEqual([]);
+  }
+});
