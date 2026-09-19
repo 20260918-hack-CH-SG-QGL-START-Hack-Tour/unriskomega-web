@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/data-display/Icon/Icon";
 import { Brand } from "@/components/ui/navigation/Brand/Brand";
+import { adminMessages } from "@/features/admin/messages";
 import { usePreferences } from "@/features/preferences/Preferences";
 import styles from "./WorkspaceStyles";
 export type Tab = "overview" | "portfolios" | "assistant" | "evidence";
@@ -20,7 +21,8 @@ export function WorkspaceNavigation({
   user: string;
   signOut: () => Promise<void>;
 }) {
-  const { t } = usePreferences();
+  const { t, locale } = usePreferences();
+  const admin = adminMessages[locale];
   return (
     <aside className={`${styles.sidebar} ${menu ? styles.sidebarOpen : ""}`}>
       <div className={styles.sideBrand}>
@@ -56,6 +58,11 @@ export function WorkspaceNavigation({
           <strong>{t.yourJudgment}</strong>
           <p>{t.noTrading}</p>
         </div>
+        <Link href="/ai/overview" title={admin.adminHint}>
+          <Icon name="grid" width="18" />
+          {admin.adminView}
+          <Icon name="arrow" width="15" />
+        </Link>
         <Link href="/deck/JO202609190900">
           <Icon name="layers" width="18" />
           {t.deck}

@@ -3,7 +3,7 @@ import { readBoundedBody } from "@/lib/api/readBoundedBody";
 import { serverConfig } from "@/lib/config";
 
 const allowed =
-  /^(auth\/(login|logout|me|demo)|clients|portfolios(?:\/[a-zA-Z0-9_-]+)?|briefings|chat|images|voice\/session|drafts)$/;
+  /^(auth\/(login|logout|me|demo)|admin\/(catalog|runtime|outcomes)|clients|portfolios(?:\/[a-zA-Z0-9_-]+)?|briefings|chat|images|voice\/session|drafts)$/;
 async function proxy(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
