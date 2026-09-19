@@ -7,52 +7,23 @@ import {
   Preferences,
   usePreferences,
 } from "@/features/preferences/Preferences";
-import { deckContent, type Slide } from "./content";
+import { deckContent, deckLabels } from "./content";
+import { DeckSlide } from "./DeckSlide";
 import styles from "./PitchDeckStyles.module.css";
 
-function SlideContent({
-  slide,
-  index,
-  total,
-}: {
-  slide: Slide;
-  index: number;
-  total: number;
-}) {
-  return (
-    <article
-      className={`${styles.slide} ${slide.accent ? styles.accent : ""}`}
-      aria-label={`${index + 1} / ${total}`}
-    >
-      <div className={styles.slideTop}>
-        <span>{slide.label}</span>
-        <span>unriskomega</span>
-      </div>
-      <div className={styles.slideMain}>
-        <h1>{slide.title}</h1>
-        <p>{slide.body}</p>
-        <ul>
-          {slide.points.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-      </div>
-      <footer>
-        <p>{slide.footnote}</p>
-        <span>
-          {String(index + 1).padStart(2, "0")} / {total}
-        </span>
-      </footer>
-    </article>
-  );
-}
 export function PitchDeck() {
   const { locale, t } = usePreferences();
   const [index, setIndex] = useState(0);
   const slides = deckContent[locale];
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLSelectElement) return;
+      if (
+        event.target instanceof HTMLSelectElement ||
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLButtonElement ||
+        event.target instanceof HTMLAnchorElement
+      )
+        return;
       if (event.key === "ArrowRight" || event.key === " ") {
         event.preventDefault();
         setIndex((value) => Math.min(value + 1, slides.length - 1));
@@ -77,6 +48,7 @@ export function PitchDeck() {
                 .catch(() => undefined)
             }
             aria-label={t.fullscreen}
+            title={t.fullscreen}
           >
             <Icon name="expand" />
           </button>
@@ -84,25 +56,28 @@ export function PitchDeck() {
             type="button"
             onClick={() => window.print()}
             aria-label={t.print}
+            title={t.print}
           >
             <Icon name="download" />
           </button>
         </div>
       </header>
       <main className={styles.active}>
-        <SlideContent
+        <DeckSlide
           slide={slides[index]}
           index={index}
           total={slides.length}
+          labels={deckLabels[locale]}
         />
       </main>
       <div className={styles.print}>
         {slides.map((slide, i) => (
-          <SlideContent
+          <DeckSlide
             key={slide.label}
             slide={slide}
             index={i}
             total={slides.length}
+            labels={deckLabels[locale]}
           />
         ))}
       </div>

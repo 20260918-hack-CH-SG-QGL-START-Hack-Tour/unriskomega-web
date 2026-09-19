@@ -1,0 +1,300 @@
+.product {
+  margin: 0;
+  min-width: 0;
+}
+.window {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--surface-soft);
+  border: var(--line);
+  padding: var(--space-3);
+}
+.window > span {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: 0.35;
+}
+.window small {
+  color: var(--muted);
+  font-size: 0.65rem;
+  margin-left: var(--space-3);
+}
+.capture {
+  background: var(--surface);
+  border: var(--line);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  height: 22rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-float);
+}
+.capture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.product figcaption {
+  font-size: 0.65rem;
+  margin-top: var(--space-3);
+  color: var(--slide-muted);
+}
+.heroProduct .capture {
+  height: auto;
+  aspect-ratio: 1.41;
+}
+.heroProduct img {
+  height: auto;
+}
+.problem {
+  margin: 0;
+  display: grid;
+  gap: var(--space-8);
+}
+.sourceInputs {
+  display: grid;
+  gap: var(--space-4);
+}
+.sourceInputs > div {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0 var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--line);
+}
+.sourceInputs span {
+  grid-row: span 2;
+  color: var(--accent);
+  font-size: var(--text-sm);
+}
+.sourceInputs strong {
+  font-size: clamp(var(--text-lg), 1.8vw, 1.6rem);
+  font-weight: 500;
+}
+.sourceInputs small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.reading {
+  display: flex;
+  align-items: end;
+  gap: var(--space-5);
+}
+.reading strong {
+  font-size: clamp(5rem, 9vw, 9rem);
+  line-height: 0.85;
+  font-weight: 400;
+  letter-spacing: -0.08em;
+  color: var(--accent);
+}
+.reading strong span {
+  font-size: 0.4em;
+}
+.reading p {
+  color: var(--muted);
+  max-width: 8rem;
+  padding-bottom: var(--space-1);
+  font-size: var(--text-lg);
+}
+.custody {
+  margin: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+.custody > div {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: center;
+  position: relative;
+  padding: var(--space-3) var(--space-5);
+  border-left: 1px solid var(--border);
+}
+.custody > div > span {
+  font-size: var(--text-xs);
+  color: var(--accent);
+}
+.custody strong {
+  font-size: clamp(var(--text-lg), 1.9vw, 1.6rem);
+  font-weight: 500;
+}
+.custody b {
+  position: absolute;
+  bottom: calc(-1 * var(--space-5));
+  left: var(--space-5);
+  font-weight: 400;
+  color: var(--muted);
+}
+.custody .virtual {
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+}
+.architecture {
+  margin: 0;
+  display: grid;
+  gap: var(--space-6);
+}
+.architecture > div {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-5);
+  background: var(--surface-soft);
+}
+.architecture span {
+  color: var(--accent);
+  font-size: var(--text-xs);
+}
+.architecture strong {
+  font-size: clamp(var(--text-base), 1.8vw, 1.4rem);
+  font-weight: 500;
+}
+.architecture b {
+  position: absolute;
+  bottom: calc(-1 * var(--space-6));
+  left: 50%;
+  color: var(--muted);
+  font-weight: 400;
+}
+.architecture > div:last-child {
+  background: var(--ink);
+  color: var(--mint);
+}
+.architecture > div:last-child span {
+  color: var(--mint);
+}
+.business {
+  display: grid;
+  gap: var(--space-8);
+}
+.business section {
+  border-bottom: var(--line);
+  padding-bottom: var(--space-5);
+}
+.business section > span {
+  color: var(--accent);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.business h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  margin-top: var(--space-3);
+}
+.business > p {
+  font-size: var(--text-lg);
+}
+.business > p strong {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-bottom: var(--space-2);
+}
+.roadmap {
+  display: grid;
+  gap: var(--space-6);
+}
+.counts {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: var(--line);
+  padding-bottom: var(--space-6);
+}
+.counts span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.counts strong {
+  display: block;
+  color: var(--accent);
+  font-size: clamp(2.6rem, 4vw, 4rem);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+}
+.roadmap section {
+  padding-left: var(--space-5);
+  border-left: 2px solid var(--accent);
+}
+.roadmap section:last-child {
+  border-color: var(--border);
+}
+.roadmap section > span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.roadmap h2 {
+  font-size: clamp(var(--text-lg), 1.8vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-top: var(--space-2);
+}
+.roadmap p {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+}
+.closing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+  padding: var(--space-8);
+}
+.closing > span {
+  font-size: 9rem;
+  line-height: 1;
+  color: var(--mint);
+  font-weight: 400;
+}
+.closing a {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  font-size: clamp(1.5rem, 2.5vw, 2.3rem);
+  color: var(--deck-text);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--deck-muted);
+  text-decoration: none;
+}
+.closing a:hover {
+  color: var(--mint);
+}
+.closing p {
+  color: var(--deck-muted);
+  font-size: var(--text-sm);
+}
+@media (min-width: 60rem) {
+  .heroProduct {
+    width: calc(100% + var(--space-8));
+    transform: perspective(80rem) rotateY(-7deg) rotateX(2deg);
+  }
+  .capture {
+    height: clamp(21rem, 32vw, 31rem);
+  }
+  .heroProduct .capture {
+    height: auto;
+  }
+}
+@media print {
+  .capture {
+    height: 24rem;
+  }
+  .heroProduct {
+    transform: none;
+    width: 100%;
+  }
+}
