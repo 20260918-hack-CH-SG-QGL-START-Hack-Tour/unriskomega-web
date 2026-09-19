@@ -57,7 +57,7 @@ export const es: Slide[] = [
       "Las acciones son borradores para conversar",
     ],
     footnote:
-      "No se suministran noticias actuales ni una visión aprobada del banco. Su ausencia se indica explícitamente.",
+      "Las fechas de origen y las noticias o la visión bancaria ausentes se indican explícitamente.",
   },
   {
     kind: "custody",

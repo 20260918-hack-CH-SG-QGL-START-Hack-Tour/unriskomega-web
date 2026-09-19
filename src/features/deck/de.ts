@@ -57,7 +57,7 @@ export const de: Slide[] = [
       "Aktionen bleiben Gesprächsentwürfe",
     ],
     footnote:
-      "Aktuelle Marktnachrichten und eine freigegebene Banksicht fehlen im Datensatz. Dies wird ausdrücklich angezeigt.",
+      "Quelldaten und fehlende Marktinformationen oder Banksichten bleiben ausdrücklich sichtbar.",
   },
   {
     kind: "custody",

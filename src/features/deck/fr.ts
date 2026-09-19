@@ -61,7 +61,7 @@ export const fr: Slide[] = [
       "Les actions restent des pistes de discussion",
     ],
     footnote:
-      "Les actualités du marché et une vision bancaire approuvée ne sont pas fournies. Leur absence est indiquée explicitement.",
+      "Les dates des sources et les informations de marché ou visions bancaires manquantes restent explicites.",
   },
   {
     kind: "custody",

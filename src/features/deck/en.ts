@@ -53,7 +53,7 @@ export const en: Slide[] = [
       "Every action stays a discussion draft",
     ],
     footnote:
-      "Current market news and an approved house view are not supplied. Their absence is shown explicitly.",
+      "Source dates and missing market or house-view inputs remain explicit.",
   },
   {
     kind: "custody",
