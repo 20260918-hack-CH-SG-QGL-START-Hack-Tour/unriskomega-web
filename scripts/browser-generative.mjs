@@ -212,13 +212,20 @@ export async function verifyLiveStructuredChat(page, check, shot) {
     assert.ok(answer.model);
     assert.equal(answer.outcome.status, "accepted");
     assert.equal(answer.outcome.verification.status, "passed");
-    assert.ok(answer.components.length > 0);
-    await page
-      .locator("article")
-      .nth(before + 1)
-      .locator("[data-component-type]")
-      .first()
-      .waitFor();
+    const expectedTypes = index === 0 ? ["chart"] : ["metric", "table"];
+    const componentTypes = answer.components.map((component) => component.type);
+    for (const type of expectedTypes) {
+      assert.ok(
+        componentTypes.includes(type),
+        `Provider response ${index + 1} missing requested ${type} component (received: ${componentTypes.join(", ")})`,
+      );
+      await page
+        .locator("article")
+        .nth(before + 1)
+        .locator(`[data-component-type="${type}"]`)
+        .first()
+        .waitFor();
+    }
     await shot(`workspace-chat-provider-${index + 1}`);
     check(
       `real provider structured chat ${index + 1}: ${answer.components.map((component) => component.type).join(", ")}`,

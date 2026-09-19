@@ -17,42 +17,45 @@ const output = process.env.QA_OUTPUT_DIR ?? "/tmp/unriskomega-web-qa";
 const executablePath = process.env.QA_CHROMIUM_PATH;
 const phases = (process.env.QA_PHASES ?? "public,flow").split(",");
 await mkdir(output, { recursive: true });
-const browser = await chromium.launch({
-  executablePath,
-  headless: true,
-  args: [
-    "--use-fake-device-for-media-stream",
-    "--use-fake-ui-for-media-stream",
-  ],
-});
-const context = await browser.newContext({
-  viewport: { width: 1440, height: 1000 },
-  permissions: ["microphone"],
-});
-await installVoiceProbe(context);
-const page = await context.newPage();
 const errors = [];
 const checks = [];
-page.on("pageerror", (error) => errors.push(error.message));
-page.on("console", (message) => {
-  if (message.type() === "error") errors.push(message.text().slice(0, 250));
-});
-const check = (name) => {
-  checks.push(name);
-  console.log(`PASS ${name}`);
-};
-async function shot(name) {
-  await page.screenshot({ path: `${output}/${name}.png`, fullPage: true });
-}
-async function signIn() {
-  await page.goto(`${base}/login`);
-  await page
-    .getByRole("button", { name: "Demo advisor account", exact: true })
-    .click();
-  await page.waitForURL("**/workspace");
-  await page.getByText("Portfolio value", { exact: true }).waitFor();
-}
+let completed = false;
+let failure = null;
+let browser;
 try {
+  browser = await chromium.launch({
+    executablePath,
+    headless: true,
+    args: [
+      "--use-fake-device-for-media-stream",
+      "--use-fake-ui-for-media-stream",
+    ],
+  });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    permissions: ["microphone"],
+  });
+  await installVoiceProbe(context);
+  const page = await context.newPage();
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text().slice(0, 250));
+  });
+  const check = (name) => {
+    checks.push(name);
+    console.log(`PASS ${name}`);
+  };
+  async function shot(name) {
+    await page.screenshot({ path: `${output}/${name}.png`, fullPage: true });
+  }
+  async function signIn() {
+    await page.goto(`${base}/login`);
+    await page
+      .getByRole("button", { name: "Demo advisor account", exact: true })
+      .click();
+    await page.waitForURL("**/workspace");
+    await page.getByText("Portfolio value", { exact: true }).waitFor();
+  }
   if (phases.includes("public")) {
     const response = await page.goto(base);
     assert.equal(response.status(), 200);
@@ -230,10 +233,17 @@ try {
   }
   assert.deepEqual(errors, [], `Browser errors: ${errors.join("\n")}`);
   check("no browser errors");
+  completed = true;
+} catch (error) {
+  failure = (error instanceof Error ? error.message : String(error)).slice(
+    0,
+    2000,
+  );
+  throw error;
 } finally {
   await writeFile(
     `${output}/results.json`,
-    JSON.stringify({ checks, errors }, null, 2),
+    JSON.stringify({ completed, failure, checks, errors }, null, 2),
   );
-  await browser.close();
+  await browser?.close();
 }
