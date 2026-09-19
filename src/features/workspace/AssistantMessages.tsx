@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { AnswerBlocks } from "@/components/ui/data-display/AnswerBlocks/AnswerBlocks";
 import { AnswerText } from "@/components/ui/data-display/AnswerText/AnswerText";
@@ -9,6 +8,7 @@ import { chatMessages, chatNotice } from "@/lib/i18n/chat";
 import type { ChatMessage } from "@/lib/models/chat";
 import responseStyles from "./AssistantResponseStyles.module.css";
 import styles from "./AssistantStyles.module.css";
+import { ChatImage } from "./ChatImage";
 
 export function AssistantMessages({
   messages,
@@ -94,18 +94,7 @@ export function AssistantMessages({
                 />
               )}
               {message.image && (
-                <figure className={responseStyles.generatedImage}>
-                  <Image
-                    unoptimized
-                    src={message.image.src}
-                    alt={t.imageLabel}
-                    width={1024}
-                    height={1024}
-                  />
-                  <figcaption>
-                    {t.imageLabel} · {message.image.model}
-                  </figcaption>
-                </figure>
+                <ChatImage image={message.image} id={message.id} />
               )}
               {!!message.evidence?.length && (
                 <details className={responseStyles.answerEvidence}>

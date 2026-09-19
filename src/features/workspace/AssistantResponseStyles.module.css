@@ -1,16 +1,3 @@
-.generatedImage {
-  margin: var(--space-6) 0 0;
-}
-.generatedImage img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-}
-.generatedImage figcaption {
-  font-size: 0.65rem;
-  color: var(--muted);
-  margin-top: var(--space-2);
-}
 .answerEvidence {
   font-size: var(--text-xs);
   margin-top: var(--space-4);
