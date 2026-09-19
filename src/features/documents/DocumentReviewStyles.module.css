@@ -1,0 +1,134 @@
+.fields {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+.fields label {
+  min-width: 0;
+}
+.tableScroll {
+  overflow: auto;
+}
+.tableScroll table {
+  width: 100%;
+  min-width: 42rem;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+.tableScroll th {
+  text-align: left;
+  padding: 0.65rem 0.3rem;
+  color: var(--muted);
+}
+.tableScroll td {
+  padding: 0.35rem 0.2rem;
+  border-top: 1px solid var(--border);
+}
+.tableScroll input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.75rem;
+  padding: 0.5rem;
+}
+.tableScroll td:first-child {
+  min-width: 12rem;
+}
+.tableScroll td:nth-child(3),
+.tableScroll td:nth-child(5) {
+  width: 5rem;
+}
+.tableScroll small {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.reviewTotals {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+  font-size: 0.8rem;
+}
+.library .confirm {
+  display: flex;
+  align-items: start;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 1rem 0;
+}
+.confirm input {
+  margin-top: 0.2rem;
+  accent-color: var(--accent);
+}
+.warning {
+  color: var(--warning);
+}
+.error {
+  padding: 0.8rem;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  border-radius: 0.65rem;
+  font-size: 0.8rem;
+}
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--accent);
+  padding: 0.8rem;
+  background: var(--surface-hover);
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+}
+.progress span {
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--accent);
+  border-radius: 50%;
+}
+.attach {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  padding: 0.45rem 0.6rem;
+}
+.dialog {
+  width: min(70rem, 95vw);
+  max-height: 90dvh;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--canvas);
+  color: var(--text);
+}
+.dialog::backdrop {
+  background: color-mix(in srgb, var(--canvas) 75%, transparent);
+  backdrop-filter: blur(0.3rem);
+}
+.dialogHeader {
+  position: sticky;
+  top: 0;
+  padding: 0.8rem 1.5rem;
+  background: var(--canvas);
+  z-index: 1;
+  border-bottom: 1px solid var(--border);
+}
+.dialog .library {
+  border: 0;
+  border-radius: 0;
+}
+.dialogHeader button {
+  padding: 0.3rem 0.65rem;
+  font-size: 1.4rem;
+}
+@media (min-width: 48rem) {
+  .fields {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+  .library {
+    padding: 1.75rem;
+  }
+}

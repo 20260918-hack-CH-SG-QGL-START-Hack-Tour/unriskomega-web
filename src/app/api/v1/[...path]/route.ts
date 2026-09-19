@@ -3,12 +3,13 @@ import { readBoundedBody } from "@/lib/api/readBoundedBody";
 import { serverConfig } from "@/lib/config";
 
 const allowed =
-  /^(auth\/(login|logout|me|demo)|admin\/(catalog|runtime|outcomes)|clients|portfolios(?:\/[a-zA-Z0-9_-]+)?|briefings|chat|images|voice\/session|drafts)$/;
+  /^(auth\/(login|logout|me|demo)|admin\/(catalog|runtime|outcomes)|clients|documents(?:\/[a-f0-9-]+\/(content|import))?|portfolios(?:\/[a-zA-Z0-9_-]+)?|briefings|chat|images|voice\/session|drafts)$/;
 async function proxy(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const path = (await params).path.join("/");
+  const maximum = path === "documents" ? 6_000_000 : 2_000_000;
   if (!allowed.test(path))
     return Response.json({ error: "Not found" }, { status: 404 });
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -17,7 +18,7 @@ async function proxy(
       request.headers.get("x-forwarded-host") ?? request.headers.get("host");
     if (origin && new URL(origin).host !== host)
       return Response.json({ error: "Origin denied" }, { status: 403 });
-    if (Number(request.headers.get("content-length") ?? 0) > 2_000_000)
+    if (Number(request.headers.get("content-length") ?? 0) > maximum)
       return Response.json({ error: "Request too large" }, { status: 413 });
   }
   const headers = new Headers();
@@ -31,8 +32,8 @@ async function proxy(
     const body =
       request.method === "GET" || request.method === "HEAD"
         ? undefined
-        : await readBoundedBody(request, 2_000_000);
-    if (body && body.length > 2_000_000)
+        : await readBoundedBody(request, maximum);
+    if (body && body.length > maximum)
       return Response.json({ error: "Request too large" }, { status: 413 });
     const upstream = await fetch(target, {
       method: request.method,
@@ -49,6 +50,14 @@ async function proxy(
     });
     for (const cookie of upstream.headers.getSetCookie())
       responseHeaders.append("Set-Cookie", cookie);
+    for (const name of [
+      "content-disposition",
+      "content-security-policy",
+      "x-content-type-options",
+    ]) {
+      const value = upstream.headers.get(name);
+      if (value) responseHeaders.set(name, value);
+    }
     return new Response(upstream.body, {
       status: upstream.status,
       headers: responseHeaders,

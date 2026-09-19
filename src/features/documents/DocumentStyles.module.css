@@ -1,0 +1,211 @@
+.library {
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  color: var(--text);
+}
+.heading,
+.preview header,
+.dialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.heading h2 {
+  font-size: 1.5rem;
+  margin: 0.35rem 0 1rem;
+}
+.heading small,
+.hint,
+.fileCard p,
+.empty p {
+  color: var(--muted);
+}
+.count,
+.fileIcon {
+  color: var(--accent);
+  background: var(--surface-hover);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+}
+.uploadBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}
+.uploadBar label,
+.fields label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 9rem;
+}
+.library input,
+.library select,
+.library button,
+.attach,
+.dialogHeader button {
+  font: inherit;
+}
+.library input,
+.library select {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--canvas);
+  color: var(--text);
+  padding: 0.7rem;
+  min-width: 0;
+}
+.library button,
+.attach,
+.dialogHeader button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  padding: 0.7rem 0.9rem;
+  color: var(--text);
+  background: var(--surface);
+}
+.library button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.library .primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.hint {
+  font-size: 0.72rem;
+  margin: 0.7rem 0 1.5rem;
+}
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 1rem 0;
+}
+.filters nav {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.filters button {
+  border-color: transparent;
+  font-size: 0.75rem;
+}
+.filters button[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+.fileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0.8rem;
+}
+.library .fileCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: start;
+  text-align: left;
+  min-height: 11rem;
+  overflow-wrap: anywhere;
+}
+.fileCard[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.fileCard strong {
+  font-size: 0.85rem;
+}
+.fileCard p {
+  margin: 0;
+  font-size: 0.75rem;
+}
+.fileCard footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.6rem;
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+.empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+.empty h3 {
+  color: var(--text);
+  margin: 0.8rem 0 0.3rem;
+}
+.empty p {
+  max-width: 32rem;
+  line-height: 1.6;
+  font-size: 0.85rem;
+}
+.preview {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+.preview header {
+  align-items: start;
+}
+.preview header h3 {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+.preview header small {
+  color: var(--muted);
+}
+.preview a {
+  color: var(--accent);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.preview p,
+.preview li {
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.preview summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.8rem;
+  margin: 1rem 0;
+}
+.preview pre {
+  white-space: pre-wrap;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  max-height: 22rem;
+  overflow: auto;
+  background: var(--canvas);
+  padding: 1rem;
+  border-radius: 0.75rem;
+}

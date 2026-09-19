@@ -1,7 +1,10 @@
 import { clientConfig } from "@/lib/config";
 export class ApiError extends Error {
-  constructor(public status: number) {
-    super(`Request failed (${status})`);
+  constructor(
+    public status: number,
+    detail?: string,
+  ) {
+    super(detail ?? `Request failed (${status})`);
   }
 }
 export async function api(
@@ -19,7 +22,14 @@ export async function api(
   if (!response.ok) {
     if (response.status === 401 && typeof window !== "undefined")
       window.dispatchEvent(new Event("uro-session-expired"));
-    throw new ApiError(response.status);
+    let detail: string | undefined;
+    try {
+      const problem = await response.json();
+      if (typeof problem.detail === "string") detail = problem.detail;
+    } catch {
+      /* Non-JSON errors keep the HTTP status. */
+    }
+    throw new ApiError(response.status, detail);
   }
   if (response.status === 204) return null;
   return response.json();
