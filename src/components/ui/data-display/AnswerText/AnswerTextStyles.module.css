@@ -1,0 +1,21 @@
+.text {
+  display: grid;
+  gap: var(--space-3);
+  overflow-wrap: anywhere;
+}
+.text p {
+  white-space: pre-wrap;
+}
+.text ul,
+.text ol {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+.text h4 {
+  font-size: var(--text-base);
+}
+.text code {
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  padding-inline: var(--space-1);
+}

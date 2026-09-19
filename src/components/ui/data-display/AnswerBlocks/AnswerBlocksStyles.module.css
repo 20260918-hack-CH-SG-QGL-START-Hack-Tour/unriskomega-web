@@ -1,0 +1,169 @@
+.blocks {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  min-width: 0;
+}
+.card {
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  background: var(--surface);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.card h4 {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+}
+.metric {
+  display: block;
+  font-size: var(--space-8);
+  line-height: 1.3;
+  color: var(--accent);
+  margin-bottom: var(--space-2);
+}
+.sources {
+  border-top: var(--line);
+  margin-top: var(--space-4);
+  padding-top: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.sources summary {
+  cursor: pointer;
+}
+.sources summary span {
+  margin-left: var(--space-2);
+  color: var(--accent);
+}
+.sources dl,
+.evidence {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+.sources dt,
+.evidence dt {
+  font-weight: 600;
+}
+.sources dd,
+.evidence dd {
+  margin: 0;
+}
+.evidence small,
+.relationships small {
+  display: block;
+  color: var(--muted);
+}
+.tableScroll {
+  overflow-x: auto;
+}
+.tableScroll table {
+  width: 100%;
+  font-size: var(--text-xs);
+}
+.tableScroll caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.tableScroll th,
+.tableScroll td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: var(--line);
+  min-width: 6rem;
+}
+.tableScroll th {
+  font-weight: 600;
+}
+.bars {
+  display: grid;
+  gap: var(--space-3);
+}
+.barRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+  font-size: var(--text-xs);
+}
+.barRow svg {
+  width: 100%;
+  height: var(--space-3);
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.barRow strong {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.track {
+  fill: var(--surface-soft);
+}
+.bar {
+  fill: var(--accent);
+}
+.negative {
+  fill: var(--danger);
+}
+.axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.projection,
+.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-block: var(--space-3);
+  overflow: visible;
+}
+.projectionLine {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+.plotText {
+  fill: var(--text);
+  font-size: var(--text-xs);
+}
+.disclosure {
+  color: var(--warning);
+  font-size: var(--text-xs);
+}
+.assumptions {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--warning-soft);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+}
+.assumptions ul,
+.relationships {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+}
+.node {
+  fill: var(--accent-soft);
+  stroke: var(--border);
+}
+.edge {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.relationships {
+  font-size: var(--text-xs);
+}
+@media (min-width: 48rem) {
+  .barRow {
+    grid-template-columns: minmax(7rem, 1fr) minmax(6rem, 2fr) auto;
+  }
+  .barRow svg {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
