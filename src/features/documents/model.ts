@@ -30,7 +30,10 @@ export type LibraryDocument = {
   createdAt: number;
   virtualPortfolioId: string;
   extraction: Extraction;
+  extractionComplete: boolean;
+  holdingCount: number;
 };
+export type CompleteDocument = LibraryDocument & { extractionComplete: true };
 function nullable(value: unknown) {
   return value == null ? null : string(value);
 }
@@ -58,22 +61,51 @@ export function parseExtraction(value: unknown): Extraction {
     }),
   };
 }
+function parseDocument(value: unknown): LibraryDocument {
+  const d = record(value);
+  const id = string(d.id);
+  const holdingCount = number(d.holdingCount);
+  if (
+    !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
+      id,
+    ) ||
+    !Number.isInteger(holdingCount) ||
+    holdingCount < 0 ||
+    holdingCount > 200
+  )
+    throw new Error("Invalid document metadata");
+  return {
+    id,
+    filename: string(d.filename),
+    kind: string(d.kind),
+    status: string(d.status),
+    clientId: string(d.clientId),
+    portfolioId: string(d.portfolioId),
+    chatSessionId: string(d.chatSessionId),
+    createdAt: number(d.createdAt),
+    virtualPortfolioId: string(d.virtualPortfolioId),
+    extraction: parseExtraction(d.extraction),
+    extractionComplete: d.extractionComplete === true,
+    holdingCount,
+  };
+}
 export function parseDocuments(value: unknown): LibraryDocument[] {
-  return list(record(value).documents).map((item) => {
-    const d = record(item);
-    return {
-      id: string(d.id),
-      filename: string(d.filename),
-      kind: string(d.kind),
-      status: string(d.status),
-      clientId: string(d.clientId),
-      portfolioId: string(d.portfolioId),
-      chatSessionId: string(d.chatSessionId),
-      createdAt: number(d.createdAt),
-      virtualPortfolioId: string(d.virtualPortfolioId),
-      extraction: parseExtraction(d.extraction),
-    };
-  });
+  return list(record(value).documents).map(parseDocument);
+}
+export function parseDocumentDetail(
+  value: unknown,
+  id: string,
+  clientId: string,
+): CompleteDocument {
+  const document = parseDocument(value);
+  if (
+    document.id !== id ||
+    document.clientId !== clientId ||
+    !document.extractionComplete ||
+    document.holdingCount !== document.extraction.holdings.length
+  )
+    throw new Error("Incomplete or mismatched document detail");
+  return { ...document, extractionComplete: true };
 }
 export function inFolder(
   doc: LibraryDocument,

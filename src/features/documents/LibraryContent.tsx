@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { usePreferences } from "@/features/preferences/Preferences";
 import { api, record, string } from "@/lib/api/client";
-import { CustodyReview } from "./CustodyReview";
 import type { DocumentLibraryProps } from "./DocumentLibrary";
+import { DocumentPreview } from "./DocumentPreview";
 import styles from "./DocumentStyles";
 import { documentMessages } from "./messages";
 import {
@@ -161,6 +161,7 @@ export function LibraryContent({
         </button>
       </div>
       <p className={styles.hint}>{t.limit}</p>
+      <p className={styles.hint}>{t.previewOnly}</p>
       {busy && (
         <output className={styles.progress}>
           <span />
@@ -216,6 +217,11 @@ export function LibraryContent({
               </span>
               <strong>{doc.filename}</strong>
               <p>{doc.extraction.title}</p>
+              {doc.kind === "custody" && (
+                <small>
+                  {t.holdings}: {doc.holdingCount}
+                </small>
+              )}
               <footer>
                 <span>
                   {doc.chatSessionId
@@ -231,52 +237,11 @@ export function LibraryContent({
         </div>
       )}
       {active && (
-        <section className={styles.preview} aria-label={t.preview}>
-          <header>
-            <div>
-              <small>{t.preview}</small>
-              <h3>{active.filename}</h3>
-            </div>
-            <a
-              href={`/api/v1/documents/${active.id}/content`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t.original} ↗
-            </a>
-          </header>
-          <p>{active.extraction.summary}</p>
-          {active.extraction.warnings.length > 0 && (
-            <details>
-              <summary>{t.warnings}</summary>
-              <ul>
-                {active.extraction.warnings.map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-          {active.kind === "custody" &&
-            (active.virtualPortfolioId ? (
-              <button
-                className={styles.primary}
-                type="button"
-                onClick={() => onImported(active.virtualPortfolioId)}
-              >
-                {t.imported}
-              </button>
-            ) : (
-              <CustodyReview
-                key={active.id}
-                document={active}
-                onImported={onImported}
-              />
-            ))}
-          <details>
-            <summary>{t.extract}</summary>
-            <pre>{active.extraction.extractedText}</pre>
-          </details>
-        </section>
+        <DocumentPreview
+          document={active}
+          clientId={clientId}
+          onImported={onImported}
+        />
       )}
     </section>
   );

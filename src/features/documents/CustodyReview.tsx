@@ -4,13 +4,13 @@ import { usePreferences } from "@/features/preferences/Preferences";
 import { api, record, string } from "@/lib/api/client";
 import styles from "./DocumentStyles";
 import { documentMessages } from "./messages";
-import { type LibraryDocument, reconciliation } from "./model";
+import { type CompleteDocument, reconciliation } from "./model";
 
 export function CustodyReview({
   document,
   onImported,
 }: {
-  document: LibraryDocument;
+  document: CompleteDocument;
   onImported: (id: string) => void;
 }) {
   const { locale } = usePreferences();

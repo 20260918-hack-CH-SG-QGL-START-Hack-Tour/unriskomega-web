@@ -21,6 +21,12 @@ const en = {
   limit:
     "Up to 4 MB · stored with the selected client · document text is treated as evidence",
   uploading: "Reading and organizing your document…",
+  loadingDetail: "Loading the full document extraction…",
+  detailError:
+    "The full extraction could not be loaded. Review is unavailable until it loads.",
+  retry: "Retry",
+  previewOnly:
+    "List previews may omit text and holdings. Open a document to review its full extraction.",
   empty: "Keep the whole client conversation in one place",
   emptyBody:
     "Add custody statements, client notes or a house view. Files in this client, portfolio or chat are included in relevant follow-ups.",
@@ -78,6 +84,12 @@ const es: Copy = {
   limit:
     "Hasta 4 MB · asociado al cliente seleccionado · el texto es evidencia",
   uploading: "Leyendo y organizando el documento…",
+  loadingDetail: "Cargando la extracción completa del documento…",
+  detailError:
+    "No se pudo cargar la extracción completa. La revisión estará disponible cuando se cargue.",
+  retry: "Reintentar",
+  previewOnly:
+    "Las vistas previas pueden omitir texto y posiciones. Abra un documento para revisar la extracción completa.",
   empty: "Todo el contexto del cliente, en un lugar",
   emptyBody:
     "Añada extractos, notas o una visión bancaria. Los archivos pertinentes se incluyen en las consultas.",
@@ -133,6 +145,12 @@ const de: Copy = {
   limit:
     "Bis 4 MB · dem gewählten Kunden zugeordnet · Dokumenttext gilt als Quelle",
   uploading: "Dokument wird gelesen und eingeordnet…",
+  loadingDetail: "Vollständige Dokumentextraktion wird geladen…",
+  detailError:
+    "Die vollständige Extraktion konnte nicht geladen werden. Die Prüfung ist erst danach verfügbar.",
+  retry: "Erneut versuchen",
+  previewOnly:
+    "Listenvorschauen können Text und Positionen auslassen. Öffnen Sie das Dokument zur vollständigen Prüfung.",
   empty: "Der gesamte Kundenkontext an einem Ort",
   emptyBody:
     "Depotauszüge, Notizen oder Hausmeinungen hinzufügen. Relevante Dateien werden in Folgefragen berücksichtigt.",
@@ -189,6 +207,12 @@ const fr: Copy = {
   limit:
     "Jusqu’à 4 Mo · lié au client sélectionné · le texte constitue une source",
   uploading: "Lecture et classement du document…",
+  loadingDetail: "Chargement de l’extraction complète du document…",
+  detailError:
+    "L’extraction complète n’a pas pu être chargée. La vérification sera disponible après son chargement.",
+  retry: "Réessayer",
+  previewOnly:
+    "Les aperçus peuvent omettre du texte et des positions. Ouvrez le document pour vérifier l’extraction complète.",
   empty: "Tout le contexte client au même endroit",
   emptyBody:
     "Ajoutez des relevés, notes ou une opinion bancaire. Les fichiers pertinents accompagnent les questions.",
