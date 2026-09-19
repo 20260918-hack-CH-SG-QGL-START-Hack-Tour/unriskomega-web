@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { chromium } from "@playwright/test";
+import {
+  verifyGenerativeChat,
+  verifyLiveStructuredChat,
+} from "./browser-generative.mjs";
 import { verifyClientSwitchIsolation } from "./browser-scope.mjs";
 import {
   assertVoiceConnected,
@@ -106,7 +110,11 @@ try {
       .waitFor();
     check("pitch deck navigation");
   }
-  if (phases.includes("flow") || phases.includes("providers")) {
+  if (
+    phases.includes("flow") ||
+    phases.includes("providers") ||
+    phases.includes("chat")
+  ) {
     await signIn();
     await shot("workspace-overview");
     check("demo authentication and actual portfolio analytics");
@@ -158,29 +166,16 @@ try {
       .getByRole("button", { name: "AI companion", exact: false })
       .first()
       .click();
+    if (phases.includes("chat")) await verifyGenerativeChat(page, check, shot);
     if (phases.includes("providers")) {
-      await page
-        .getByLabel("Ask about this portfolio", { exact: true })
-        .fill(
-          "Explain the largest allocation concentration using only this portfolio snapshot.",
-        );
-      await page
-        .getByRole("button", { name: "Send message", exact: true })
-        .click();
-      await page
-        .locator("article")
-        .filter({ has: page.locator("small") })
-        .first()
-        .waitFor({ timeout: 90000 });
-      await shot("workspace-chat");
-      check("actual provider portfolio chat");
+      await verifyLiveStructuredChat(page, check, shot);
       await page
         .getByRole("button", { name: "Create image", exact: true })
         .click();
       await page
-        .getByLabel("Create image", { exact: true })
+        .getByLabel("Ask about this portfolio", { exact: true })
         .fill(
-          "A minimalist emerald landscape illustration for a financial planning conversation, no numbers, no text.",
+          "/image A minimalist emerald landscape illustration for a financial planning conversation, no numbers, no text.",
         );
       await page
         .getByRole("button", { name: "Send message", exact: true })
@@ -190,9 +185,6 @@ try {
         .waitFor({ timeout: 120000 });
       await shot("workspace-image");
       check("actual provider image generation");
-      await page
-        .getByRole("button", { name: "Ask about this portfolio", exact: true })
-        .click();
       for (const [label, mode] of [
         ["Voice conversation", "conversation"],
         ["Dictate message", "transcription"],
