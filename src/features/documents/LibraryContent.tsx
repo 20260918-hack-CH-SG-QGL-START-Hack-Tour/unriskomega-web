@@ -31,6 +31,7 @@ export function LibraryContent({
     { clientId, portfolioId, chatSessionId, scope, kind, locale },
     async (results) => {
       const version = generation.current;
+      onUpdated?.();
       try {
         const loaded = parseDocuments(
           await api(`documents?clientId=${encodeURIComponent(clientId)}`),
@@ -40,11 +41,9 @@ export function LibraryContent({
         const first = results.find((result) => result.clientId === clientId);
         setSelected(first?.documentId ?? "");
         setFolder("all");
-        onUpdated?.();
       } catch (error) {
         if (version !== generation.current) return;
         setError(error instanceof Error ? error.message : t.error);
-        onUpdated?.();
       }
     },
   );
