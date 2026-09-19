@@ -114,7 +114,11 @@ export function LibraryContent({
       <div className={styles.uploadBar}>
         <label>
           {t.scope}
-          <select value={scope} onChange={(e) => setScope(e.target.value)}>
+          <select
+            aria-label={t.scope}
+            value={scope}
+            onChange={(e) => setScope(e.target.value)}
+          >
             <option value="client">{t.client}</option>
             <option value="portfolio">{t.portfolio}</option>
             {chatSessionId && <option value="chat">{t.chat}</option>}
@@ -122,7 +126,11 @@ export function LibraryContent({
         </label>
         <label>
           {t.kind}
-          <select value={kind} onChange={(e) => setKind(e.target.value)}>
+          <select
+            aria-label={t.kind}
+            value={kind}
+            onChange={(e) => setKind(e.target.value)}
+          >
             <option value="document">{t.document}</option>
             <option value="custody">{t.custody}</option>
             <option value="house-view">{t.houseView}</option>
