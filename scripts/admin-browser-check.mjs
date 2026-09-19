@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { chromium } from "@playwright/test";
+import { checkDeck } from "./admin-deck-qa.mjs";
+import { checkGraph, checkOntology } from "./admin-graph-qa.mjs";
 
 const base = process.env.QA_BASE_URL ?? "http://localhost:3110";
 const output = process.env.QA_OUTPUT_DIR ?? "/tmp/unriskomega-admin-qa";
@@ -15,6 +17,8 @@ const context = await browser.newContext({
 const page = await context.newPage();
 const checks = [],
   errors = [];
+let completed = false;
+let failure = null;
 page.on("pageerror", (error) => errors.push(error.message));
 const check = (name) => {
   checks.push(name);
@@ -40,9 +44,15 @@ try {
     data: {},
   });
   assert.equal(response.status(), 200);
+  const catalog = await (
+    await context.request.get(`${base}/api/v1/admin/catalog`)
+  ).json();
+  assert.ok(catalog.counts.clients >= 47 && catalog.counts.portfolios >= 57);
   await page.goto(`${base}/ai/overview`);
   await page.getByRole("heading", { name: "Overview", exact: true }).waitFor();
-  await page.getByText("826", { exact: true }).waitFor();
+  await page
+    .getByText(String(catalog.counts.holdings), { exact: true })
+    .waitFor();
   await screenshot("admin-overview-en-light");
   check("real source-backed overview counts");
   await page
@@ -62,15 +72,7 @@ try {
   await page
     .getByRole("link", { name: "Knowledge graph", exact: true })
     .click();
-  const focus = page.getByRole("combobox", { name: /^Focus node/ });
-  await focus.locator("option").nth(100).waitFor({ state: "attached" });
-  const options = await focus.locator("option").count();
-  assert.ok(options > 100);
-  await focus.selectOption("portfolio:0");
-  await page.getByRole("figure").getByRole("button").first().click();
-  assert.notEqual(await focus.inputValue(), "portfolio:0");
-  await screenshot("admin-graph");
-  check("interactive graph traverses loaded ownership and exposure relations");
+  await checkGraph(page, screenshot, check);
   for (const [route, heading] of [
     ["ontology", "Ontology"],
     ["agents", "Agents"],
@@ -87,6 +89,7 @@ try {
       .waitFor({ state: "hidden" });
     await noOverflow();
     await screenshot(`admin-${route}`);
+    if (route === "ontology") await checkOntology(page, screenshot, check);
   }
   check("all admin routes render without overflow");
   await page.goto(`${base}/ai/overview`);
@@ -112,7 +115,9 @@ try {
   await page.getByText("Portfolio value", { exact: true }).waitFor();
   check("view switch preserves authenticated advisor workspace");
   await page.goto(`${base}/ai/overview`);
-  await page.getByText("826", { exact: true }).waitFor();
+  await page
+    .getByText(String(catalog.counts.holdings), { exact: true })
+    .waitFor();
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await page.waitForURL("**/login");
   assert.equal(
@@ -125,11 +130,17 @@ try {
   const unknown = await page.goto(`${base}/ai/delete-database`);
   assert.equal(unknown.status(), 404);
   check("unknown admin route returns 404");
+  await checkDeck(page, base, output, screenshot, check);
   assert.deepEqual(errors, []);
+  completed = true;
+} catch (error) {
+  failure = error instanceof Error ? error.message : String(error);
+  await screenshot("failure");
+  throw error;
+} finally {
   await writeFile(
     `${output}/results.json`,
-    JSON.stringify({ base, checks, errors }, null, 2),
+    JSON.stringify({ base, completed, failure, checks, errors }, null, 2),
   );
-} finally {
   await browser.close();
 }
