@@ -288,3 +288,7 @@
     padding-block: var(--space-12);
   }
 }
+
+.attachments {
+  padding: var(--space-3) var(--space-5) 0;
+}

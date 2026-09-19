@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
 import { Icon, type IconName } from "@/components/ui/data-display/Icon/Icon";
+import { DocumentLibrary } from "@/features/documents/DocumentLibrary";
 import {
   Preferences,
   usePreferences,
 } from "@/features/preferences/Preferences";
 import { formatNumber } from "@/lib/i18n";
+import { conversationMessages } from "@/lib/i18n/conversation";
 import { gapLabel } from "@/lib/i18n/portfolioLabels";
 import { AssistantPanel } from "./AssistantPanel";
 import { BriefingPanel } from "./BriefingPanel";
@@ -28,6 +30,7 @@ export function Workspace() {
     ["portfolios", "wallet", t.portfolios],
     ["assistant", "spark", t.assistant],
     ["evidence", "book", t.evidence],
+    ["documents", "book", conversationMessages[locale].documents],
   ];
   return (
     <div className={styles.shell}>
@@ -210,15 +213,26 @@ export function Workspace() {
                   <HoldingsPanel portfolio={p} full />
                 </>
               )}
-              {tab === "assistant" && (
+              <div hidden={tab !== "assistant"}>
                 <AssistantPanel
                   key={p.id}
                   portfolioId={p.id}
+                  clientId={state.clientId}
+                  onImported={(id) => void state.refreshAfterImport(id)}
+                  visible={tab === "assistant"}
                   clientAlias={
                     state.clients.find((client) => client.id === state.clientId)
                       ?.alias ?? ""
                   }
                   portfolioName={p.name}
+                />
+              </div>
+              {tab === "documents" && (
+                <DocumentLibrary
+                  clientId={state.clientId}
+                  portfolioId={p.id}
+                  chatSessionId=""
+                  onImported={(id) => void state.refreshAfterImport(id)}
                 />
               )}
               {tab === "evidence" && (

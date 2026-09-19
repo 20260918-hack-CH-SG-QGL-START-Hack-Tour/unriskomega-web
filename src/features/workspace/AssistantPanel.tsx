@@ -1,7 +1,8 @@
 "use client";
-import { type FormEvent, useRef } from "react";
+import { type FormEvent, useEffect, useRef } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { Tooltip } from "@/components/ui/overlays/Tooltip/Tooltip";
+import { DocumentLibrary } from "@/features/documents/DocumentLibrary";
 import { usePreferences } from "@/features/preferences/Preferences";
 import { clientConfig } from "@/lib/config";
 import { chatMessages } from "@/lib/i18n/chat";
@@ -18,10 +19,16 @@ import { VoiceControls } from "./VoiceControls";
 
 export function AssistantPanel({
   portfolioId,
+  clientId,
+  onImported,
+  visible,
   clientAlias,
   portfolioName,
 }: {
   portfolioId: string;
+  clientId: string;
+  onImported: (id: string) => void;
+  visible: boolean;
   clientAlias: string;
   portfolioName: string;
 }) {
@@ -45,6 +52,9 @@ export function AssistantPanel({
     dictation.discard,
     chat.context,
   );
+  useEffect(() => {
+    if (!visible) voice.cancel();
+  }, [visible, voice.cancel]);
   const active = ["active", "connecting", "finalizing"].includes(
     voice.voiceState,
   );
@@ -66,6 +76,15 @@ export function AssistantPanel({
         portfolioName={portfolioName}
         sessionId={chat.sessionId}
       />
+      <div className={styles.attachments}>
+        <DocumentLibrary
+          compact
+          clientId={clientId}
+          portfolioId={portfolioId}
+          chatSessionId={chat.sessionId}
+          onImported={onImported}
+        />
+      </div>
       <AssistantMessages
         messages={chat.messages}
         onPrompt={choosePrompt}

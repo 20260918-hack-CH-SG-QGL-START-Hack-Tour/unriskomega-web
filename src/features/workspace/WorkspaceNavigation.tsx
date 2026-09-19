@@ -5,7 +5,12 @@ import { Brand } from "@/components/ui/navigation/Brand/Brand";
 import { adminMessages } from "@/features/admin/messages";
 import { usePreferences } from "@/features/preferences/Preferences";
 import styles from "./WorkspaceStyles";
-export type Tab = "overview" | "portfolios" | "assistant" | "evidence";
+export type Tab =
+  | "overview"
+  | "portfolios"
+  | "assistant"
+  | "evidence"
+  | "documents";
 export function WorkspaceNavigation({
   menu,
   tab,

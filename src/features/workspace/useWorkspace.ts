@@ -205,6 +205,23 @@ export function useWorkspace(locale: Locale) {
     setGenerating(false);
     setError(false);
   }
+  async function refreshAfterImport(id: string) {
+    const current = version.current;
+    try {
+      const [clientData, portfolioData] = await Promise.all([
+        api("clients"),
+        api(`portfolios?clientId=${encodeURIComponent(clientId)}`),
+      ]);
+      if (current !== version.current) return;
+      setClients(parseClients(clientData));
+      const values = parseSummaries(portfolioData);
+      setSummaries(values);
+      if (id && values.some((item) => item.id === id) && id !== portfolioId)
+        setPortfolioId(id);
+    } catch {
+      if (current === version.current) setError(true);
+    }
+  }
   async function generate() {
     if (!portfolioId || generating) return;
     const current = version.current;
@@ -252,6 +269,7 @@ export function useWorkspace(locale: Locale) {
     connected,
     user,
     generate,
+    refreshAfterImport,
     signOut,
   };
 }
