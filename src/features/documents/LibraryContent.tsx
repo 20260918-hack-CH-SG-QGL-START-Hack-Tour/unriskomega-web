@@ -2,35 +2,62 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { usePreferences } from "@/features/preferences/Preferences";
-import { api, record, string } from "@/lib/api/client";
+import { api } from "@/lib/api/client";
 import type { DocumentLibraryProps } from "./DocumentLibrary";
 import { DocumentPreview } from "./DocumentPreview";
 import styles from "./DocumentStyles";
 import { documentMessages } from "./messages";
-import {
-  filePayload,
-  inFolder,
-  type LibraryDocument,
-  parseDocuments,
-} from "./model";
+import { inFolder, type LibraryDocument, parseDocuments } from "./model";
+import { useUploads } from "./useUploads";
 export function LibraryContent({
   clientId,
   portfolioId,
   chatSessionId,
   onImported,
+  onUpdated,
 }: DocumentLibraryProps) {
   const { locale } = usePreferences();
   const t = documentMessages[locale];
   const [documents, setDocuments] = useState<LibraryDocument[]>([]);
   const [folder, setFolder] = useState("all");
   const [scope, setScope] = useState(chatSessionId ? "chat" : "portfolio");
-  const [kind, setKind] = useState("document");
+  const [kind, setKind] = useState("custody");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("");
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const uploadInput = useRef<HTMLInputElement>(null);
   const generation = useRef(0);
+  const uploads = useUploads(
+    { clientId, portfolioId, chatSessionId, scope, kind, locale },
+    async (results) => {
+      const version = generation.current;
+      try {
+        const loaded = parseDocuments(
+          await api(`documents?clientId=${encodeURIComponent(clientId)}`),
+        );
+        if (version !== generation.current) return;
+        setDocuments(loaded);
+        const first = results.find((result) => result.clientId === clientId);
+        setSelected(first?.documentId ?? "");
+        setFolder("all");
+        onUpdated?.();
+      } catch (error) {
+        if (version === generation.current)
+          setError(error instanceof Error ? error.message : t.error);
+        onUpdated?.();
+      }
+    },
+  );
+  const busy = uploads.busy;
+  function upload(files: File[], retryId?: string) {
+    if (files.length > 20) {
+      setError(t.batchLimit);
+      return;
+    }
+    setError("");
+    void uploads.upload(files, retryId);
+    if (uploadInput.current) uploadInput.current.value = "";
+  }
   useEffect(() => {
     const version = ++generation.current;
     setDocuments([]);
@@ -47,42 +74,6 @@ export function LibraryContent({
       generation.current++;
     };
   }, [clientId]);
-  async function upload(file: File) {
-    const version = generation.current;
-    setBusy(true);
-    setError("");
-    try {
-      const payload = await filePayload(file);
-      const result = record(
-        await api("documents", {
-          method: "POST",
-          body: JSON.stringify({
-            ...payload,
-            clientId,
-            portfolioId,
-            chatSessionId,
-            scope,
-            kind,
-            locale,
-          }),
-        }),
-      );
-      const loaded = parseDocuments(
-        await api(`documents?clientId=${encodeURIComponent(clientId)}`),
-      );
-      if (version === generation.current) {
-        setDocuments(loaded);
-        setSelected(string(result.id));
-        setFolder("all");
-      }
-    } catch (e) {
-      if (version === generation.current)
-        setError(e instanceof Error ? e.message : t.error);
-    } finally {
-      if (version === generation.current) setBusy(false);
-      if (uploadInput.current) uploadInput.current.value = "";
-    }
-  }
   const shown = documents.filter(
     (d) =>
       inFolder(d, folder, portfolioId, chatSessionId) &&
@@ -118,6 +109,7 @@ export function LibraryContent({
             aria-label={t.scope}
             value={scope}
             onChange={(e) => setScope(e.target.value)}
+            disabled={busy}
           >
             <option value="client">{t.client}</option>
             <option value="portfolio">{t.portfolio}</option>
@@ -130,6 +122,7 @@ export function LibraryContent({
             aria-label={t.kind}
             value={kind}
             onChange={(e) => setKind(e.target.value)}
+            disabled={busy}
           >
             <option value="document">{t.document}</option>
             <option value="custody">{t.custody}</option>
@@ -142,11 +135,11 @@ export function LibraryContent({
           ref={uploadInput}
           type="file"
           className={styles.fileInput}
-          accept=".pdf,.txt,.csv,.md"
+          accept=".pdf,.json,.txt,.csv,.md"
+          multiple
           aria-label={t.drop}
           onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void upload(file);
+            upload(Array.from(e.target.files ?? []));
           }}
           disabled={busy}
         />
@@ -160,8 +153,111 @@ export function LibraryContent({
           {t.upload}
         </button>
       </div>
-      <p className={styles.hint}>{t.limit}</p>
+      <button
+        type="button"
+        className={styles.dropZone}
+        disabled={busy}
+        onClick={() => uploadInput.current?.click()}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          if (!busy) upload(Array.from(event.dataTransfer.files));
+        }}
+      >
+        <Icon name="book" width="25" />
+        <div>
+          <strong>{t.dropTitle}</strong>
+          <p>{t.limit}</p>
+        </div>
+        <span>{t.batchHint}</span>
+      </button>
       <p className={styles.hint}>{t.previewOnly}</p>
+      {uploads.items.length > 0 && (
+        <section
+          className={styles.uploadResults}
+          aria-label={t.uploadResults}
+          aria-live="polite"
+        >
+          <header>
+            <strong>{t.uploadResults}</strong>
+            <span>
+              {
+                uploads.items.filter((item) =>
+                  ["saved", "review", "imported", "failed"].includes(
+                    item.state,
+                  ),
+                ).length
+              }{" "}
+              / {uploads.items.length}
+            </span>
+          </header>
+          <progress
+            max={uploads.items.length}
+            value={
+              uploads.items.filter((item) =>
+                ["saved", "review", "imported", "failed"].includes(item.state),
+              ).length
+            }
+            aria-label={t.uploadResults}
+          />
+          <ul>
+            {uploads.items.map((item) => (
+              <li key={item.id} data-state={item.state}>
+                <Icon
+                  name={
+                    item.state === "failed"
+                      ? "info"
+                      : ["saved", "review", "imported"].includes(item.state)
+                        ? "check"
+                        : "clock"
+                  }
+                  width="18"
+                />
+                <div>
+                  <strong>{item.file.name}</strong>
+                  <p>
+                    {t[item.state]} ·{" "}
+                    {(item.file.size / 1024).toLocaleString(locale, {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    KB
+                  </p>
+                  {item.error && <p className={styles.error}>{item.error}</p>}
+                </div>
+                {item.result?.imported && item.result.portfolioId && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onImported(
+                        item.result?.portfolioId ?? "",
+                        item.result?.clientId,
+                      )
+                    }
+                  >
+                    {t.openImported}
+                  </button>
+                )}
+                {item.result?.review && item.result.clientId === clientId && (
+                  <button
+                    type="button"
+                    onClick={() => setSelected(item.result?.documentId ?? "")}
+                  >
+                    {t.review}
+                  </button>
+                )}
+                {item.state === "failed" && !busy && (
+                  <button
+                    type="button"
+                    onClick={() => upload([item.file], item.id)}
+                  >
+                    {t.retry}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       {busy && (
         <output className={styles.progress}>
           <span />

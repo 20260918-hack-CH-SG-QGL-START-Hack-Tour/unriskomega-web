@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, record, string } from "@/lib/api/client";
+import { subscribeDataChanges } from "@/lib/api/dataChanges";
 import {
   type AdminCatalog,
   parseAdminCatalog,
@@ -77,6 +78,7 @@ export function useAdmin() {
       clear();
     };
   }, [clear, refresh, router]);
+  useEffect(() => subscribeDataChanges(() => void refresh()), [refresh]);
   async function signOut() {
     clear();
     try {

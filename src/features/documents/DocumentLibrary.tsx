@@ -10,7 +10,8 @@ export type DocumentLibraryProps = {
   clientId: string;
   portfolioId: string;
   chatSessionId: string;
-  onImported: (id: string) => void;
+  onImported: (id: string, clientId?: string) => void;
+  onUpdated?: () => void;
   compact?: boolean;
 };
 export function DocumentLibrary(props: DocumentLibraryProps) {
@@ -41,9 +42,9 @@ export function DocumentLibrary(props: DocumentLibraryProps) {
           </header>
           <LibraryContent
             {...props}
-            onImported={(id) => {
+            onImported={(id, clientId) => {
               dialog.current?.close();
-              props.onImported(id);
+              props.onImported(id, clientId);
             }}
           />
         </dialog>

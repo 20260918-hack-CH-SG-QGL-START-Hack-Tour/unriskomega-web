@@ -76,7 +76,7 @@ export function DocumentPreview({
                 type="button"
                 onClick={() => onImported(active.virtualPortfolioId)}
               >
-                {t.imported}
+                {t.openImported}
               </button>
             ) : (
               <CustodyReview

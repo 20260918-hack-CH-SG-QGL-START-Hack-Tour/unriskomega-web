@@ -25,13 +25,15 @@ export function AssistantPanel({
   portfolioId,
   clientId,
   onImported,
+  onUpdated,
   visible,
   clientAlias,
   portfolioName,
 }: {
   portfolioId: string;
   clientId: string;
-  onImported: (id: string) => void;
+  onImported: (id: string, clientId?: string) => void;
+  onUpdated: () => void;
   visible: boolean;
   clientAlias: string;
   portfolioName: string;
@@ -91,6 +93,7 @@ export function AssistantPanel({
           portfolioId={portfolioId}
           chatSessionId={chat.sessionId}
           onImported={onImported}
+          onUpdated={onUpdated}
         />
       </div>
       <AssistantMessages

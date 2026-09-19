@@ -24,4 +24,28 @@ describe("document scope and custody arithmetic", () => {
       ).valid,
     ).toBe(true);
   });
+  test("whole-unit source rounding is visible without silently reconciling the holdings", () => {
+    const result = reconciliation(
+      [{ marketValue: "60" }, { marketValue: "39" }] as never,
+      "100",
+    );
+    expect(result).toMatchObject({
+      valid: false,
+      roundingEligible: true,
+      difference: 1,
+      sum: 99,
+    });
+    expect(
+      reconciliation(
+        [{ marketValue: "60.2" }, { marketValue: "39" }] as never,
+        "100",
+      ).roundingEligible,
+    ).toBe(false);
+    expect(
+      reconciliation(
+        [{ marketValue: "60" }, { marketValue: "30" }] as never,
+        "100",
+      ).roundingEligible,
+    ).toBe(false);
+  });
 });

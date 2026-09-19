@@ -124,6 +124,13 @@ export function reconciliation(holdings: ExtractedHolding[], total: string) {
   const sum = values.reduce((a, b) => a + b, 0);
   return {
     sum,
+    difference: Number(total) - sum,
+    roundingEligible:
+      holdings.length >= 2 &&
+      values.every(Number.isInteger) &&
+      Number.isInteger(Number(total)) &&
+      Math.abs(sum - Number(total)) > 0.02 &&
+      Math.abs(sum - Number(total)) <= (holdings.length + 1) * 0.5,
     valid:
       holdings.length > 0 &&
       values.every(Number.isFinite) &&
@@ -138,11 +145,13 @@ export async function filePayload(file: File) {
   const mimeType =
     extension === "pdf"
       ? "application/pdf"
-      : extension === "csv"
-        ? "text/csv"
-        : "text/plain";
-  if (!["pdf", "csv", "txt", "md"].includes(extension ?? ""))
-    throw new Error("Choose a PDF, CSV or text document.");
+      : extension === "json"
+        ? "application/json"
+        : extension === "csv"
+          ? "text/csv"
+          : "text/plain";
+  if (!["pdf", "json", "csv", "txt", "md"].includes(extension ?? ""))
+    throw new Error("Choose a PDF, JSON, CSV or text document.");
   const bytes = new Uint8Array(await file.arrayBuffer());
   let binary = "";
   for (let i = 0; i < bytes.length; i += 8192)

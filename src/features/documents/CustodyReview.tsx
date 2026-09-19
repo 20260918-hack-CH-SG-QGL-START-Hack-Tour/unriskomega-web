@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { usePreferences } from "@/features/preferences/Preferences";
 import { api, record, string } from "@/lib/api/client";
+import { publishDataChange } from "@/lib/api/dataChanges";
 import styles from "./DocumentStyles";
 import { documentMessages } from "./messages";
 import { type CompleteDocument, reconciliation } from "./model";
@@ -22,11 +23,13 @@ export function CustodyReview({
   const [total, setTotal] = useState(e.totalValue ?? "");
   const [holdings, setHoldings] = useState(e.holdings);
   const [confirmed, setConfirmed] = useState(false);
+  const [allowRoundingDifference, setAllowRoundingDifference] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const totals = reconciliation(holdings, total);
   function change(index: number, key: string, value: string) {
     setConfirmed(false);
+    setAllowRoundingDifference(false);
     setHoldings((rows) =>
       rows.map((row, i) =>
         i === index
@@ -44,6 +47,8 @@ export function CustodyReview({
           method: "POST",
           body: JSON.stringify({
             confirmed,
+            allowRoundingDifference:
+              totals.roundingEligible && allowRoundingDifference,
             name,
             asOf: date,
             currency,
@@ -52,6 +57,7 @@ export function CustodyReview({
           }),
         }),
       );
+      publishDataChange();
       onImported(string(result.id));
     } catch (error) {
       setError(error instanceof Error ? error.message : t.error);
@@ -106,6 +112,7 @@ export function CustodyReview({
             onChange={(e) => {
               setTotal(e.target.value);
               setConfirmed(false);
+              setAllowRoundingDifference(false);
             }}
           />
         </label>
@@ -212,6 +219,26 @@ export function CustodyReview({
       {!totals.valid && (
         <output className={styles.warning}>{t.mismatch}</output>
       )}
+      {totals.roundingEligible && (
+        <label className={styles.confirm}>
+          <input
+            type="checkbox"
+            checked={allowRoundingDifference}
+            onChange={(event) => {
+              setAllowRoundingDifference(event.target.checked);
+              setConfirmed(false);
+            }}
+          />
+          <span>
+            {t.rounding}
+            <br />
+            <strong>
+              {t.roundingDifference}: {totals.difference.toLocaleString(locale)}{" "}
+              {currency}
+            </strong>
+          </span>
+        </label>
+      )}
       <label className={styles.confirm}>
         <input
           type="checkbox"
@@ -229,7 +256,14 @@ export function CustodyReview({
         type="button"
         className={styles.primary}
         disabled={
-          busy || !confirmed || !totals.valid || !date || currency.length !== 3
+          busy ||
+          !confirmed ||
+          !(
+            totals.valid ||
+            (totals.roundingEligible && allowRoundingDifference)
+          ) ||
+          !date ||
+          currency.length !== 3
         }
         onClick={() => void importPortfolio()}
       >

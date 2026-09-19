@@ -28,6 +28,8 @@ export function useWorkspace(locale: Locale) {
   const [connected, setConnected] = useState(false);
   const [user, setUser] = useState("");
   const version = useRef(0);
+  const refreshVersion = useRef(0);
+  const importedSelection = useRef("");
   const expiryTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -90,7 +92,11 @@ export function useWorkspace(locale: Locale) {
         if (!active) return;
         const values = parseSummaries(data);
         setSummaries(values);
-        updatePortfolioId(values[0]?.id ?? "");
+        const preferred = values.find(
+          (item) => item.id === importedSelection.current,
+        );
+        importedSelection.current = "";
+        updatePortfolioId(preferred?.id ?? values[0]?.id ?? "");
         if (!values.length) setLoading(false);
       })
       .catch(() => {
@@ -207,19 +213,43 @@ export function useWorkspace(locale: Locale) {
     setGenerating(false);
     setError(false);
   }
-  async function refreshAfterImport(id: string) {
+  async function refreshAfterImport(id = "", importedClientId?: string) {
     const current = version.current;
+    const refresh = ++refreshVersion.current;
+    const selectedClient = importedClientId || clientId;
     try {
-      const [clientData, portfolioData] = await Promise.all([
+      const [clientData, portfolioData, detail] = await Promise.all([
         api("clients"),
-        api(`portfolios?clientId=${encodeURIComponent(clientId)}`),
+        api(`portfolios?clientId=${encodeURIComponent(selectedClient)}`),
+        portfolioId &&
+        selectedClient === clientId &&
+        (!id || id === portfolioId)
+          ? api(`portfolios/${encodeURIComponent(portfolioId)}`)
+          : Promise.resolve(null),
       ]);
-      if (current !== version.current) return;
-      setClients(parseClients(clientData));
+      if (current !== version.current || refresh !== refreshVersion.current)
+        return;
+      const clients = parseClients(clientData);
+      setClients(clients);
       const values = parseSummaries(portfolioData);
+      if (selectedClient !== clientId) {
+        if (
+          !clients.some((client) => client.id === selectedClient) ||
+          !values.some((item) => item.id === id)
+        )
+          throw new Error("Imported context unavailable");
+        importedSelection.current = id;
+        setClientId(selectedClient);
+        return;
+      }
       setSummaries(values);
       if (id && values.some((item) => item.id === id) && id !== portfolioId)
         setPortfolioId(id);
+      else if (detail) {
+        const updated = parsePortfolio(detail);
+        if (updated.id === portfolioId) setPortfolio(updated);
+        setBriefing(null);
+      }
     } catch {
       if (current === version.current) setError(true);
     }
