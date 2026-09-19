@@ -1,5 +1,6 @@
 import { list, number, record, string } from "@/lib/api/client";
 import { type ChatAnswer, parseChatAnswer } from "./chat";
+import { text } from "./chatComponents";
 export type Client = {
   id: string;
   alias: string;
@@ -57,6 +58,7 @@ export type Portfolio = {
   raw: Record<string, unknown>;
 };
 export type Briefing = {
+  id?: string;
   assistantResponse?: ChatAnswer;
   mode: string;
   model: string;
@@ -165,6 +167,7 @@ export function parseBriefing(value: unknown): Briefing {
     }
   }
   return {
+    id: v.id == null ? undefined : text(v.id, 160),
     assistantResponse,
     mode: string(v.mode),
     model: typeof v.model === "string" ? v.model : "",

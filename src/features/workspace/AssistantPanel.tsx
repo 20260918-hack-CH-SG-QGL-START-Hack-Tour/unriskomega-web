@@ -9,13 +9,16 @@ import { chatMessages } from "@/lib/i18n/chat";
 import { conversationMessages } from "@/lib/i18n/conversation";
 import { imagePrompt } from "@/lib/models/chat";
 import {
-  type ConversationContext,
   type ConversationTurn,
   conversationNote,
 } from "@/lib/models/conversation";
 import type { Portfolio } from "@/lib/models/portfolio";
 import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
+import {
+  briefingConversationMessage,
+  type WorkspaceConversation,
+} from "./briefingConversation";
 import { ConversationHeader } from "./ConversationHeader";
 import { contextMessages } from "./contextMessages";
 import { ModelSelector } from "./ModelSelector";
@@ -51,13 +54,14 @@ export function AssistantPanel({
   models: ModelSelection;
   onContext: (
     portfolioId: string,
-    context: (() => ConversationContext) | null,
+    context: WorkspaceConversation | null,
   ) => void;
 }) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
   const [refreshedVoice, setRefreshedVoice] = useState(false);
   const voiceNotes = useRef<((turn: ConversationTurn) => void) | null>(null);
+  const sharedBriefings = useRef(new Set<string>());
   const chat = useAssistantChat(
     portfolioId,
     locale,
@@ -67,9 +71,18 @@ export function AssistantPanel({
     models.model,
   );
   useEffect(() => {
-    onContext(portfolioId, chat.context);
+    onContext(portfolioId, {
+      context: chat.context,
+      rememberBriefing(briefing) {
+        const message = briefingConversationMessage(briefing);
+        if (!message || sharedBriefings.current.has(message.id)) return;
+        sharedBriefings.current.add(message.id);
+        chat.upsert(message);
+        voiceNotes.current?.(conversationNote(message));
+      },
+    });
     return () => onContext(portfolioId, null);
-  }, [onContext, portfolioId, chat.context]);
+  }, [onContext, portfolioId, chat.context, chat.upsert]);
   const conversation = conversationMessages[locale];
   const cards = useVoiceCards(
     portfolioId,

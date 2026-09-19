@@ -9,9 +9,9 @@ import {
 import { formatNumber } from "@/lib/i18n";
 import { conversationMessages } from "@/lib/i18n/conversation";
 import { gapLabel } from "@/lib/i18n/portfolioLabels";
-import type { ConversationContext } from "@/lib/models/conversation";
 import { AssistantPanel } from "./AssistantPanel";
 import { BriefingPanel } from "./BriefingPanel";
+import type { WorkspaceConversation } from "./briefingConversation";
 import { MarketSourcesPanel } from "./MarketSourcesPanel";
 import { ModelSelector } from "./ModelSelector";
 import modelStyles from "./ModelSelectorStyles.module.css";
@@ -28,26 +28,33 @@ export function Workspace() {
   const { t, locale } = usePreferences();
   const state = useWorkspace(locale);
   const models = useModelSelection();
-  const conversation = useRef<{
-    portfolioId: string;
-    context: () => ConversationContext;
-  } | null>(null);
+  const conversation = useRef<
+    (WorkspaceConversation & { portfolioId: string }) | null
+  >(null);
   const registerContext = useCallback(
-    (portfolioId: string, context: (() => ConversationContext) | null) => {
-      if (context) conversation.current = { portfolioId, context };
+    (portfolioId: string, context: WorkspaceConversation | null) => {
+      if (context) conversation.current = { portfolioId, ...context };
       else if (conversation.current?.portfolioId === portfolioId)
         conversation.current = null;
     },
     [],
   );
-  function generate() {
+  async function generate() {
     const context = conversation.current;
-    void state.generate(
-      models.model,
+    const current =
       context?.portfolioId === state.portfolioId
         ? context.context()
-        : undefined,
-    );
+        : undefined;
+    const scope = current?.chatSessionId ? current : undefined;
+    const briefing = await state.generate(models.model, scope);
+    const active = conversation.current;
+    if (
+      briefing &&
+      scope &&
+      active?.portfolioId === context?.portfolioId &&
+      active?.context().chatSessionId === scope.chatSessionId
+    )
+      active.rememberBriefing(briefing);
   }
   const [tab, setTab] = useState<Tab>("overview");
   const [menu, setMenu] = useState(false);

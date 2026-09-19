@@ -273,7 +273,10 @@ export function useWorkspace(locale: Locale) {
           body: JSON.stringify({ portfolioId, locale, ...context, model }),
         }),
       );
-      if (current === version.current) setBriefing(value);
+      if (current === version.current) {
+        setBriefing(value);
+        return value;
+      }
     } catch (reason) {
       if (current === version.current) {
         setError(true);
