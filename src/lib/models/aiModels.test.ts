@@ -21,6 +21,10 @@ test("invalid or ambiguous model catalogues cannot become selectable choices", (
     { defaultModel: model.id, models: [{ ...model, label: " " }] },
     { defaultModel: model.id, models: [{ ...model, url: "https://invalid" }] },
     { defaultModel: "../model", models: [{ ...model, id: "../model" }] },
+    {
+      defaultModel: "provider:model",
+      models: [{ ...model, id: "provider:model" }],
+    },
     { defaultModel: model.id, models: [model], providerKey: "not-allowed" },
   ])
     expect(() => parseModelCatalogue(value)).toThrow();

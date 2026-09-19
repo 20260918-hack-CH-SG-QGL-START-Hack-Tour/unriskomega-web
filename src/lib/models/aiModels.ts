@@ -12,7 +12,7 @@ export function parseModelCatalogue(value: unknown): ModelCatalogue {
     const model = object(value, ["id", "label"]);
     const id = text(model.id, 128);
     const label = text(model.label, 128);
-    if (!/^[a-zA-Z0-9][a-zA-Z0-9._:-]*$/.test(id) || !label.trim())
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(id) || !label.trim())
       throw new Error("Invalid analysis model");
     return { id, label };
   });
