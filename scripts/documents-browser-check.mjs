@@ -35,7 +35,9 @@ try {
     .click();
   await page.waitForURL("**/workspace");
   await page.locator("#client-select").selectOption({ label: "Client 28" });
-  await page.locator("#portfolio-select").selectOption({ label: "Portfolio 01" });
+  await page
+    .locator("#portfolio-select")
+    .selectOption({ label: "Portfolio 01" });
   await page.getByText("Portfolio value", { exact: true }).waitFor();
   const nativeId = await page.locator("#portfolio-select").inputValue();
   const nativeName = await page
