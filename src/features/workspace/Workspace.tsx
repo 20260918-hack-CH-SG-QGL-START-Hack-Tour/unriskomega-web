@@ -211,7 +211,15 @@ export function Workspace() {
                 </>
               )}
               {tab === "assistant" && (
-                <AssistantPanel key={p.id} portfolioId={p.id} />
+                <AssistantPanel
+                  key={p.id}
+                  portfolioId={p.id}
+                  clientAlias={
+                    state.clients.find((client) => client.id === state.clientId)
+                      ?.alias ?? ""
+                  }
+                  portfolioName={p.name}
+                />
               )}
               {tab === "evidence" && (
                 <>

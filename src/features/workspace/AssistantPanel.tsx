@@ -8,11 +8,20 @@ import { chatMessages } from "@/lib/i18n/chat";
 import { imagePrompt } from "@/lib/models/chat";
 import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
+import { ConversationHeader } from "./ConversationHeader";
 import { useAssistantChat } from "./useAssistantChat";
 import { useDictationComposer } from "./useDictationComposer";
 import { useVoice } from "./useVoice";
 
-export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
+export function AssistantPanel({
+  portfolioId,
+  clientAlias,
+  portfolioName,
+}: {
+  portfolioId: string;
+  clientAlias: string;
+  portfolioName: string;
+}) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
   const chat = useAssistantChat(portfolioId, locale, t, copy);
@@ -29,6 +38,7 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
     (text, model) =>
       chat.append({ role: "assistant", text, model: `${t.voice} · ${model}` }),
     dictation.discard,
+    chat.context,
   );
   const active = ["active", "connecting", "finalizing"].includes(
     voice.voiceState,
@@ -47,23 +57,11 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
   }
   return (
     <section className={styles.panel}>
-      <div className={styles.heading}>
-        <span className={styles.assistantIcon}>
-          <Icon name="spark" />
-        </span>
-        <div>
-          <h2>{t.assistant}</h2>
-          <span>{t.humanControl}</span>
-        </div>
-        <div className={styles.scope}>
-          <Tooltip label={copy.scopeHelp} align="end">
-            <button type="button" aria-label={t.portfolioOverview}>
-              <Icon name="shield" width="13" />
-              {t.portfolioOverview}
-            </button>
-          </Tooltip>
-        </div>
-      </div>
+      <ConversationHeader
+        clientAlias={clientAlias}
+        portfolioName={portfolioName}
+        sessionId={chat.sessionId}
+      />
       <AssistantMessages
         messages={chat.messages}
         onPrompt={choosePrompt}

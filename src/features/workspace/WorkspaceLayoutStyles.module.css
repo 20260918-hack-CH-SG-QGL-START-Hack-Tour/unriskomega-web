@@ -135,6 +135,9 @@
   background: var(--accent-hover);
 }
 .contextBar {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 19;
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -156,11 +159,9 @@
   color: var(--muted);
 }
 .contextBar label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
 }
 .contextBar select {
   background: transparent;

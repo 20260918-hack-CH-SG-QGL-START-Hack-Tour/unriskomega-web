@@ -10,6 +10,7 @@ import {
   parseChatAnswer,
   parseGeneratedImage,
 } from "@/lib/models/chat";
+import { conversationHistory } from "@/lib/models/conversation";
 
 export function useAssistantChat(
   portfolioId: string,
@@ -17,11 +18,14 @@ export function useAssistantChat(
   t: Messages,
   copy: ChatCopy,
 ) {
+  const [sessionId, setSessionId] = useState("");
+  const messageRef = useRef<ChatMessage[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState<"chat" | "image" | null>(null);
   const [error, setError] = useState("");
   const sequence = useRef(0);
+  useEffect(() => setSessionId(crypto.randomUUID()), []);
   const request = useRef<AbortController | null>(null);
   useEffect(
     () => () => {
@@ -31,11 +35,19 @@ export function useAssistantChat(
     [],
   );
   const append = useCallback((message: Omit<ChatMessage, "id">) => {
-    setMessages((current) => [
-      ...current,
+    const next = [
+      ...messageRef.current,
       { ...message, id: String(++sequence.current) },
-    ]);
+    ];
+    messageRef.current = next;
+    setMessages(next);
   }, []);
+  function context() {
+    return {
+      chatSessionId: sessionId,
+      history: conversationHistory(messageRef.current),
+    };
+  }
   function cancel() {
     request.current?.abort();
     request.current = null;
@@ -56,6 +68,7 @@ export function useAssistantChat(
     request.current = controller;
     setPending(image === null ? "chat" : "image");
     setError("");
+    const scope = context();
     append({ role: "user", text: prompt });
     setInput("");
     try {
@@ -67,8 +80,8 @@ export function useAssistantChat(
         ]),
         body: JSON.stringify(
           image === null
-            ? { portfolioId, message: prompt, locale }
-            : { portfolioId, prompt: image, locale },
+            ? { portfolioId, message: prompt, locale, ...scope }
+            : { portfolioId, prompt: image, locale, ...scope },
         ),
       });
       if (request.current !== controller) return;
@@ -95,5 +108,16 @@ export function useAssistantChat(
       }
     }
   }
-  return { messages, input, setInput, pending, error, append, submit, cancel };
+  return {
+    messages,
+    sessionId,
+    context,
+    input,
+    setInput,
+    pending,
+    error,
+    append,
+    submit,
+    cancel,
+  };
 }

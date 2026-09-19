@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, record, string } from "@/lib/api/client";
 import { clientConfig } from "@/lib/config";
 import type { Locale } from "@/lib/i18n";
+import type { ConversationContext } from "@/lib/models/conversation";
 import {
   type SpokenTranscript,
   VoiceTranscriptLedger,
@@ -18,6 +19,7 @@ export function useVoice(
   ) => void,
   onResponse: (text: string, model: string) => void,
   onDiscard: () => void,
+  context?: () => ConversationContext,
 ) {
   const [voiceState, setState] = useState<
     "idle" | "connecting" | "active" | "finalizing" | "error"
@@ -157,7 +159,13 @@ export function useVoice(
       const answer = record(
         await api("voice/session", {
           method: "POST",
-          body: JSON.stringify({ portfolioId, locale, sdp: offer.sdp, mode }),
+          body: JSON.stringify({
+            portfolioId,
+            locale,
+            sdp: offer.sdp,
+            mode,
+            ...context?.(),
+          }),
         }),
       );
       if (current !== generation.current) return;
