@@ -57,3 +57,49 @@ test("image followups retain safe briefing context without raster payloads", () 
   expect(note.content).toContain("Portfolio 01");
   expect(note.content).not.toContain("PRIVATEBINARY");
 });
+
+test("followups retain the holdings and amounts previously displayed only in a table", () => {
+  const [note] = conversationHistory([
+    {
+      role: "assistant",
+      text: "The rebalancing candidates are below.",
+      visualText: "Consider selling the overweight position.",
+      components: [
+        {
+          type: "table",
+          title: "Candidates",
+          columns: ["Holding", "Amount"],
+          rows: [["Nestlé", "CHF 1,250"]],
+          sourceIds: ["E1"],
+        },
+      ],
+      evidence: [
+        { id: "E1", label: "Position", locator: "portfolio.holdings[0]" },
+      ],
+    },
+  ]);
+  expect(note.content).toContain("Nestlé");
+  expect(note.content).toContain("CHF 1,250");
+  expect(note.content).toContain("portfolio.holdings[0]");
+  expect(note.content).toContain("Consider selling");
+});
+
+test("long answers leave room for visual context within the multilingual byte bound", () => {
+  const note = conversationNote({
+    role: "assistant",
+    text: "é🙂".repeat(2000),
+    components: [
+      {
+        type: "metric",
+        label: "Allocation gap",
+        value: "12%",
+        sourceIds: ["E1"],
+      },
+    ],
+  });
+  expect(note.content).toContain("Allocation gap");
+  expect(new TextEncoder().encode(note.content).length).toBeLessThanOrEqual(
+    4000,
+  );
+  expect(note.content).not.toContain("\uFFFD");
+});

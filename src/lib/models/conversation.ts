@@ -10,6 +10,10 @@ export type ConversationContext = {
 };
 
 const encoder = new TextEncoder();
+type ConversationMessage = Pick<
+  ChatMessage,
+  "role" | "text" | "image" | "components" | "evidence" | "visualText"
+>;
 function boundedText(value: string, limit: number): string {
   const bytes = encoder.encode(value.trim());
   if (bytes.length <= limit) return value.trim();
@@ -18,20 +22,30 @@ function boundedText(value: string, limit: number): string {
 }
 
 export function conversationNote(
-  message: Pick<ChatMessage, "role" | "text" | "image">,
+  message: ConversationMessage,
 ): ConversationTurn {
   const briefing = message.image?.briefing;
+  const visuals = message.components?.length
+    ? `\nPreviously displayed visuals (conversation context): ${JSON.stringify({
+        components: message.components,
+        evidence: message.evidence,
+      })}`
+    : "";
+  const image = briefing
+    ? `\nIllustrative image context: ${JSON.stringify(briefing)}`
+    : "";
+  const extra = `${visuals}${image}${message.visualText ? `\nVisual explanation: ${message.visualText}` : ""}`;
   return {
     role: message.role,
     content: boundedText(
-      `${message.text}${briefing ? `\nIllustrative image context: ${JSON.stringify(briefing)}` : ""}`,
+      `${boundedText(message.text, extra ? 2400 : 4000)}${extra}`,
       4000,
     ),
   };
 }
 
 export function conversationHistory(
-  messages: Pick<ChatMessage, "role" | "text" | "image">[],
+  messages: ConversationMessage[],
 ): ConversationTurn[] {
   const result: ConversationTurn[] = [];
   let remaining = 16000;
