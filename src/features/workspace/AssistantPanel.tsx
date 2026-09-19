@@ -8,6 +8,10 @@ import { clientConfig } from "@/lib/config";
 import { chatMessages } from "@/lib/i18n/chat";
 import { conversationMessages } from "@/lib/i18n/conversation";
 import { imagePrompt } from "@/lib/models/chat";
+import {
+  type ConversationTurn,
+  conversationNote,
+} from "@/lib/models/conversation";
 import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
 import { ConversationHeader } from "./ConversationHeader";
@@ -34,7 +38,10 @@ export function AssistantPanel({
 }) {
   const { t, locale } = usePreferences();
   const copy = chatMessages[locale];
-  const chat = useAssistantChat(portfolioId, locale, t, copy);
+  const voiceNotes = useRef<((turn: ConversationTurn) => void) | null>(null);
+  const chat = useAssistantChat(portfolioId, locale, t, copy, (message) =>
+    voiceNotes.current?.(conversationNote(message)),
+  );
   const conversation = conversationMessages[locale];
   const cards = useVoiceCards(portfolioId, locale, chat.context, chat.upsert);
   const composer = useRef<HTMLTextAreaElement>(null);
@@ -52,6 +59,7 @@ export function AssistantPanel({
     dictation.discard,
     chat.context,
   );
+  voiceNotes.current = voice.remember;
   useEffect(() => {
     if (!visible) voice.cancel();
   }, [visible, voice.cancel]);

@@ -17,6 +17,7 @@ export async function verifyVoiceUi(page, check, shot) {
       track,
       originalPeer,
       originalMedia,
+      sent: [],
       peer: null,
       channel: null,
     };
@@ -37,7 +38,9 @@ export async function verifyVoiceUi(page, check, shot) {
           close() {
             this.readyState = "closed";
           },
-          send() {},
+          send(data) {
+            captured.sent.push(JSON.parse(data));
+          },
         };
         captured.channel = channel;
         return channel;
@@ -150,6 +153,21 @@ export async function verifyVoiceUi(page, check, shot) {
       await page.evaluate(() => window.__uroVoiceFixture.peer.connectionState),
       "connected",
     );
+    const notes = await page.evaluate(() => window.__uroVoiceFixture.sent);
+    assert.equal(notes.length, 2);
+    assert.ok(
+      notes.every(
+        (event) =>
+          event.type === "conversation.item.create" &&
+          event.item.content[0].type === "input_text",
+      ),
+    );
+    assert.ok(
+      notes.some((event) =>
+        event.item.content[0].text.includes("selected portfolio"),
+      ),
+    );
+    assert.equal(JSON.stringify(notes).includes("data:image"), false);
     await page.evaluate(() =>
       window.__uroVoiceFixture.channel.onmessage({
         data: JSON.stringify({

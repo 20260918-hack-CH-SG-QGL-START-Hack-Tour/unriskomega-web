@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { conversationHistory } from "./conversation";
+import { conversationHistory, conversationNote } from "./conversation";
 
 test("history retains the last twelve nonempty conversational turns", () => {
   const messages = Array.from({ length: 15 }, (_, index) => ({
@@ -35,4 +35,25 @@ test("history forwards text and roles without image bytes or runtime metadata", 
     { role: "assistant", text: "Image summary" },
   ]);
   expect(result).toEqual([{ role: "assistant", content: "Image summary" }]);
+});
+
+test("image followups retain safe briefing context without raster payloads", () => {
+  const note = conversationNote({
+    role: "assistant",
+    text: "Illustration",
+    image: {
+      model: "image-model",
+      src: "data:image/png;base64,PRIVATEBINARY",
+      briefing: {
+        title: "Selected portfolio",
+        selectedClient: "Client 28",
+        selectedPortfolio: "Portfolio 01",
+        asOf: null,
+        facts: [],
+        warnings: [],
+      },
+    },
+  });
+  expect(note.content).toContain("Portfolio 01");
+  expect(note.content).not.toContain("PRIVATEBINARY");
 });

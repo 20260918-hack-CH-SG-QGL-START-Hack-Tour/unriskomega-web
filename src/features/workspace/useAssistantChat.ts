@@ -17,7 +17,10 @@ export function useAssistantChat(
   locale: Locale,
   t: Messages,
   copy: ChatCopy,
+  onMessage?: (message: ChatMessage) => void,
 ) {
+  const listener = useRef(onMessage);
+  listener.current = onMessage;
   const [sessionId, setSessionId] = useState("");
   const messageRef = useRef<ChatMessage[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -41,6 +44,7 @@ export function useAssistantChat(
     ];
     messageRef.current = next;
     setMessages(next);
+    listener.current?.(next[next.length - 1]);
   }, []);
   const upsert = useCallback(
     (update: Pick<ChatMessage, "id" | "role"> & Partial<ChatMessage>) => {

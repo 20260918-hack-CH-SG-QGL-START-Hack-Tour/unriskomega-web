@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import {
   muteMicrophone,
+  realtimeConversationNote,
   terminalVoiceError,
   VoiceTurnLedger,
   voiceDurationSeconds,
@@ -90,4 +91,21 @@ test("item and response errors do not terminate a live voice call", () => {
   ).toBe(false);
   expect(terminalVoiceError({ code: "session_expired" })).toBe(true);
   expect(terminalVoiceError({ type: "authentication_error" })).toBe(true);
+});
+
+test("typed context enters the live session as a silent bounded item", () => {
+  const event = realtimeConversationNote({
+    role: "assistant",
+    content: "The selected portfolio is Portfolio 01",
+  });
+  expect(event.type).toBe("conversation.item.create");
+  expect(event.item.content[0].type).toBe("input_text");
+  expect(event.item.content[0].text).toContain("Portfolio 01");
+  expect(JSON.stringify(event)).not.toContain("response.create");
+  expect(
+    new TextEncoder().encode(
+      realtimeConversationNote({ role: "user", content: "€".repeat(10000) })
+        .item.content[0].text,
+    ).length,
+  ).toBeLessThanOrEqual(4000);
 });

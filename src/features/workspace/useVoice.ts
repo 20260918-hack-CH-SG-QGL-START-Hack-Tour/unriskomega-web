@@ -3,13 +3,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, record, string } from "@/lib/api/client";
 import { clientConfig } from "@/lib/config";
 import type { Locale } from "@/lib/i18n";
-import type { ConversationContext } from "@/lib/models/conversation";
+import type {
+  ConversationContext,
+  ConversationTurn,
+} from "@/lib/models/conversation";
 import {
   type SpokenTranscript,
   VoiceTranscriptLedger,
 } from "@/lib/models/voice";
 import {
   muteMicrophone,
+  realtimeConversationNote,
   terminalVoiceError,
   VoiceTurnLedger,
   voiceDurationSeconds,
@@ -47,6 +51,7 @@ export function useVoice(
     undefined,
   );
   const turns = useRef(new VoiceTurnLedger("initial"));
+  const notes = useRef<ConversationTurn[]>([]);
   const peer = useRef<RTCPeerConnection | null>(null);
   const channel = useRef<RTCDataChannel | null>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -64,6 +69,7 @@ export function useVoice(
   callbacks.current = { onTranscript, onResponse, onDiscard };
   const close = useCallback((discard = true) => {
     generation.current++;
+    notes.current = [];
     clearTimeout(timeout.current);
     clearInterval(countdown.current);
     clearTimeout(finalTimeout.current);
@@ -157,6 +163,7 @@ export function useVoice(
         connection.addTrack(track, media);
       const events = connection.createDataChannel("oai-events");
       channel.current = events;
+      events.onopen = flushNotes;
       events.onmessage = (event) => {
         if (current === generation.current) handleEvent(event.data, mode);
       };
@@ -181,6 +188,8 @@ export function useVoice(
       };
       const offer = await connection.createOffer();
       await connection.setLocalDescription(offer);
+      const scope = context?.();
+      notes.current = [];
       const answer = record(
         await api("voice/session", {
           method: "POST",
@@ -189,7 +198,7 @@ export function useVoice(
             locale,
             sdp: offer.sdp,
             mode,
-            ...context?.(),
+            ...scope,
           }),
         }),
       );
@@ -267,6 +276,24 @@ export function useVoice(
       console.warn("Invalid voice event rejected");
     }
   }
+  function flushNotes() {
+    if (channel.current?.readyState !== "open") return;
+    try {
+      while (notes.current.length)
+        channel.current.send(
+          JSON.stringify(
+            realtimeConversationNote(notes.current.shift() as ConversationTurn),
+          ),
+        );
+    } catch {
+      setRecoverableError(true);
+    }
+  }
+  function remember(turn: ConversationTurn) {
+    if (activeMode.current !== "conversation" || !turn.content.trim()) return;
+    notes.current = [...notes.current, turn].slice(-12);
+    flushNotes();
+  }
   function toggleMute() {
     const next = !muted;
     muteMicrophone(stream.current, next);
@@ -280,6 +307,7 @@ export function useVoice(
     speaking,
     remainingSeconds,
     toggleMute,
+    remember,
     start,
     stop,
     cancel,
