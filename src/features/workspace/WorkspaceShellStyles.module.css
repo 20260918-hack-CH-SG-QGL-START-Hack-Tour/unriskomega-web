@@ -1,0 +1,223 @@
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 70rem) {
+  .shell {
+    grid-template-columns: 15rem minmax(0, 1fr);
+  }
+}
+@media (min-width: 90rem) {
+  .shell {
+    grid-template-columns: 16rem minmax(0, 1fr);
+  }
+}
+.sidebar {
+  display: none;
+  background: var(--surface);
+  border-right: var(--line);
+  position: fixed;
+  inset: 4.5rem auto 0 0;
+  width: 16rem;
+  z-index: 15;
+  padding: var(--space-6) var(--space-4);
+  flex-direction: column;
+}
+.sidebar nav {
+  display: grid;
+  gap: var(--space-2);
+}
+.sidebar nav button {
+  border: 0;
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: 0.8rem var(--space-3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  font-size: 0.78rem;
+}
+.sidebar nav button:hover {
+  background: var(--surface-soft);
+}
+.sidebar nav .activeNav {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.sidebar nav button > span {
+  margin-left: auto;
+  font-size: 0.55rem;
+  border: 1px solid var(--border);
+  padding: 0 0.25rem;
+  border-radius: 0.2rem;
+}
+@media (min-width: 70rem) {
+  .sidebar {
+    display: flex;
+    position: sticky;
+    inset: auto;
+    top: 0;
+    align-self: start;
+    height: 100dvh;
+    width: 15rem;
+  }
+}
+@media (min-width: 90rem) {
+  .sidebar {
+    width: 16rem;
+  }
+}
+.sidebarOpen {
+  display: flex;
+}
+.sideBrand {
+  display: none;
+  padding: var(--space-2) var(--space-3) var(--space-8);
+}
+@media (min-width: 70rem) {
+  .sideBrand {
+    display: block;
+  }
+}
+.workspaceLabel {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  border: var(--line);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-8);
+}
+.workspaceLabel strong {
+  font-size: 0.7rem;
+  font-weight: 550;
+}
+.workspaceLabel small {
+  display: block;
+  font-size: 0.55rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.workspaceMark {
+  height: 2rem;
+  width: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  font-family: Georgia, serif;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.sidebarBottom {
+  margin-top: auto;
+  padding-top: var(--space-12);
+}
+.sidebarBottom > a,
+.sidebarBottom > button {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3);
+  font-size: 0.74rem;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  text-align: left;
+}
+.sidebarBottom > a > svg:last-child {
+  margin-left: auto;
+}
+.sideNote {
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  margin-bottom: var(--space-5);
+}
+.sideNote > svg {
+  color: var(--accent);
+  margin-bottom: var(--space-2);
+}
+.sideNote strong {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 550;
+}
+.sideNote p {
+  font-size: 0.62rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: var(--space-2);
+}
+.profile {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  border-top: var(--line);
+  margin-top: var(--space-5);
+  padding: var(--space-5) var(--space-2) 0;
+}
+.profile > span,
+.avatar {
+  display: grid;
+  place-items: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.65rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.profile strong {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.profile small {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.avatar {
+  height: 2.4rem;
+  width: 2.4rem;
+}
+.mainColumn {
+  min-width: 0;
+}
+.topbar {
+  height: 4.5rem;
+  border-bottom: var(--line);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-5);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+@media (min-width: 70rem) {
+  .topbar {
+    padding-inline: var(--space-8);
+  }
+}
+.menuButton {
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2.5rem;
+}
+@media (min-width: 70rem) {
+  .menuButton {
+    display: none;
+  }
+}

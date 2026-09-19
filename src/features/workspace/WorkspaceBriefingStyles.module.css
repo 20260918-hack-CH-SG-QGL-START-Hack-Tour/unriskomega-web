@@ -1,0 +1,226 @@
+.sourceNote {
+  display: block;
+  font-size: 0.61rem;
+  color: var(--muted);
+  margin-top: var(--space-3);
+}
+.emptySmall {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.instrumentName {
+  display: block;
+  max-width: 24rem;
+}
+.textButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 550;
+  background: transparent;
+  border: 0;
+  padding: var(--space-3) 0;
+}
+.briefingPanel {
+  background: var(--surface);
+  min-height: 35rem;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 70rem) {
+  .briefingPanel {
+    min-height: 42rem;
+  }
+}
+.briefingTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.briefingTitle > span {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-sm);
+}
+.reviewBadge {
+  font-size: 0.53rem;
+  color: var(--accent);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-width: 8rem;
+  text-align: center;
+}
+.briefingEmpty {
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  margin: auto;
+  max-width: 26rem;
+}
+.briefingEmpty h3 {
+  font-size: 1.45rem;
+  font-weight: 450;
+  line-height: 1.4;
+  letter-spacing: -0.035em;
+}
+.briefingEmpty p {
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: var(--space-4);
+}
+.briefingEmpty button {
+  margin-top: var(--space-6);
+}
+.briefingArt {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: grid;
+  place-items: center;
+  background: var(--surface-soft);
+  color: var(--accent);
+  border-radius: 50%;
+  margin: 0 auto var(--space-6);
+}
+.briefingFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  border-top: var(--line);
+  padding-top: var(--space-4);
+  margin-top: auto;
+  font-size: 0.58rem;
+  color: var(--muted);
+}
+.briefingFooter > span {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-1);
+}
+.modeLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.62rem;
+  color: var(--accent);
+  padding: var(--space-3) 0;
+}
+.briefingSections {
+  display: grid;
+  gap: var(--space-5);
+  margin-block: var(--space-4);
+}
+.briefingSections h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.88rem;
+  font-weight: 550;
+  margin-bottom: var(--space-2);
+}
+.briefingSections h3 span {
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+.briefingSections p {
+  font-size: 0.78rem;
+  line-height: 1.9;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+.draft {
+  margin: var(--space-4) 0 var(--space-6);
+  border-top: var(--line);
+  padding-top: var(--space-4);
+  font-size: 0.7rem;
+}
+.draft summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 550;
+  padding-block: var(--space-2);
+}
+.draft label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.65rem;
+  margin-block: var(--space-3);
+}
+.draft textarea {
+  display: block;
+  width: 100%;
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background: var(--canvas);
+  color: var(--text);
+  font-size: 0.78rem;
+  margin-bottom: var(--space-3);
+}
+.coverage {
+  display: flex;
+  align-items: start;
+  gap: var(--space-3);
+  background: var(--surface-soft);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  margin-top: var(--space-6);
+  color: var(--muted);
+}
+.coverage > svg {
+  margin-top: 0.1rem;
+}
+.coverage strong {
+  font-size: 0.7rem;
+  color: var(--text);
+  font-weight: 550;
+}
+.coverage p {
+  font-size: 0.64rem;
+  margin-top: var(--space-1);
+  line-height: 1.7;
+}
+.coverage > span {
+  display: none;
+  font-size: 0.58rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+@media (min-width: 42rem) {
+  .coverage > span {
+    display: block;
+  }
+}
+.evidenceList {
+  margin: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+.evidenceList > div {
+  display: grid;
+  gap: var(--space-1);
+  border-bottom: var(--line);
+  padding-bottom: var(--space-3);
+}
+.evidenceList dt {
+  color: var(--muted);
+  font-size: 0.67rem;
+}
+.evidenceList dd {
+  margin: 0;
+  font-size: 0.83rem;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 42rem) {
+  .evidenceList > div {
+    grid-template-columns: 12rem 1fr;
+  }
+}

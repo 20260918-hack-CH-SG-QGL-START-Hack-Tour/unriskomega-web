@@ -1,0 +1,39 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 1.25rem;
+  letter-spacing: -0.055em;
+  font-weight: 720;
+  line-height: 1.1;
+  color: var(--text);
+  text-decoration: none;
+}
+.brand small {
+  display: block;
+  font-size: 0.49rem;
+  letter-spacing: 0.19em;
+  line-height: 2.3;
+  font-weight: 550;
+  color: var(--muted);
+}
+.omega {
+  font-weight: 420;
+}
+.mark {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  letter-spacing: -0.1em;
+  font-size: 1.35rem;
+  padding-right: 0.2rem;
+}
+.mark span {
+  font-size: 1.25rem;
+  transform: translateY(0.14rem);
+}

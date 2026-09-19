@@ -1,0 +1,72 @@
+.sourceText {
+  font-size: 0.73rem;
+  overflow-wrap: anywhere;
+  margin-top: var(--space-4);
+}
+.pageFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding-top: var(--space-8);
+  color: var(--muted);
+  font-size: 0.56rem;
+}
+.pageFooter > span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.loading,
+.empty {
+  min-height: 22rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.loading > span {
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-5);
+}
+.error button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  text-decoration: underline;
+  margin-left: auto;
+}
+.skip {
+  position: fixed;
+  top: -5rem;
+  left: var(--space-4);
+  z-index: 100;
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: var(--space-4);
+}
+.skip:focus {
+  top: var(--space-4);
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

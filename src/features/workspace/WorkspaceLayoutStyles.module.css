@@ -1,0 +1,203 @@
+.breadcrumb {
+  display: none;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.breadcrumb strong {
+  color: var(--text);
+  font-weight: 500;
+}
+@media (min-width: 42rem) {
+  .breadcrumb {
+    display: flex;
+  }
+}
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+.connection {
+  display: none;
+  font-size: 0.62rem;
+  color: var(--muted);
+  align-items: center;
+  gap: var(--space-2);
+}
+.connection i {
+  height: 0.35rem;
+  width: 0.35rem;
+  border-radius: 50%;
+  background: var(--warning);
+}
+.connection i[data-connected="true"] {
+  background: var(--accent);
+}
+@media (min-width: 42rem) {
+  .connection {
+    display: flex;
+  }
+}
+.main {
+  max-width: 105rem;
+  margin: auto;
+  padding: var(--space-6) var(--space-4);
+}
+.panel {
+  padding: var(--space-5);
+  border: var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  min-width: 0;
+}
+.main > .panel {
+  margin-bottom: var(--space-5);
+}
+@media (min-width: 42rem) {
+  .main {
+    padding: var(--space-8);
+  }
+}
+@media (min-width: 42rem) {
+  .panel {
+    padding: var(--space-6);
+  }
+}
+@media (min-width: 70rem) {
+  .main {
+    padding: var(--space-8);
+  }
+}
+@media (min-width: 90rem) {
+  .main {
+    padding: var(--space-10);
+  }
+}
+.pageHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+.pageHeading h1 {
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  margin: var(--space-1) 0;
+}
+.pageHeading p {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+@media (min-width: 70rem) {
+  .pageHeading h1 {
+    font-size: 2.2rem;
+  }
+}
+@media (min-width: 70rem) {
+  .pageHeading {
+    margin-bottom: var(--space-8);
+  }
+}
+.kicker {
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.74rem;
+  font-weight: 550;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  min-height: 2.8rem;
+}
+.secondaryButton {
+  background: var(--surface-soft);
+  color: var(--text);
+  border: var(--line);
+}
+.primaryButton:hover {
+  background: var(--accent-hover);
+}
+.contextBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+.contextBar > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 13rem;
+}
+.contextBar > div > svg {
+  color: var(--muted);
+}
+.contextBar label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.contextBar select {
+  background: transparent;
+  border: 0;
+  width: 100%;
+  font-size: 0.74rem;
+  padding: var(--space-2) var(--space-1);
+  color: var(--text);
+  font-weight: 550;
+  min-height: 2rem;
+}
+@media (min-width: 42rem) {
+  .contextBar > div {
+    flex: 0 1 16rem;
+  }
+}
+.snapshotBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.6rem;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-inline: var(--space-2);
+}
+@media (min-width: 42rem) {
+  .snapshotBadge {
+    margin-left: auto;
+  }
+}
+.stats {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+@media (min-width: 42rem) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

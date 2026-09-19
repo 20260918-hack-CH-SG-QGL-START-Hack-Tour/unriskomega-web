@@ -1,0 +1,225 @@
+.statCard {
+  background: var(--surface);
+  border: var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}
+.statCard > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.statCard strong {
+  display: block;
+  font-size: 2rem;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-2);
+}
+.statCard small {
+  display: block;
+  font-size: 0.63rem;
+  color: var(--muted);
+}
+@media (min-width: 70rem) {
+  .statCard {
+    padding: var(--space-6);
+  }
+}
+.overviewGrid {
+  display: grid;
+  gap: var(--space-5);
+  align-items: start;
+  margin-bottom: var(--space-6);
+}
+@media (min-width: 70rem) {
+  .overviewGrid {
+    grid-template-columns: minmax(20rem, 0.92fr) minmax(24rem, 1.08fr);
+  }
+}
+@media (min-width: 90rem) {
+  .overviewGrid {
+    gap: var(--space-6);
+  }
+}
+.leftStack {
+  display: grid;
+  gap: var(--space-5);
+}
+.panelHeading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-5);
+}
+.panelHeading h2 {
+  font-size: 0.93rem;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+}
+.panelHeading > svg {
+  color: var(--muted);
+}
+.count {
+  display: grid;
+  place-items: center;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--surface-soft);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+}
+.allocationContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+.donut {
+  width: 10rem;
+  height: 10rem;
+  flex-shrink: 0;
+}
+@media (min-width: 70rem) {
+  .donut {
+    width: 9rem;
+    height: 9rem;
+  }
+}
+@media (min-width: 90rem) {
+  .donut {
+    width: 11rem;
+    height: 11rem;
+  }
+}
+.allocationLegend {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  font-size: 0.66rem;
+}
+.allocationLegend > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: center;
+}
+.allocationLegend span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--muted);
+}
+.allocationLegend strong {
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 70rem) {
+  .allocationLegend {
+    font-size: 0.62rem;
+  }
+}
+@media (min-width: 90rem) {
+  .allocationLegend {
+    font-size: 0.7rem;
+  }
+}
+.tableScroll {
+  overflow: auto;
+  max-width: 100%;
+}
+.tableScroll:focus-visible {
+  outline-offset: -0.15rem;
+}
+.allocationTable {
+  width: 100%;
+  font-size: 0.61rem;
+  margin-top: var(--space-5);
+  white-space: nowrap;
+}
+.allocationTable th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--muted);
+}
+.allocationTable td,
+.allocationTable th {
+  padding: var(--space-2) var(--space-2);
+  border-bottom: var(--line);
+}
+.allocationTable td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.allocationTable th:not(:first-child) {
+  text-align: right;
+}
+.allocationTable caption,
+.holdingsTable caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.holdingsTable {
+  width: 100%;
+  font-size: 0.7rem;
+}
+.holdingsTable thead th {
+  text-align: left;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 500;
+  padding: var(--space-3);
+  white-space: nowrap;
+  border-bottom: var(--line);
+}
+.holdingsTable tbody th {
+  font-weight: 500;
+  min-width: 14rem;
+}
+.holdingsTable td,
+.holdingsTable tbody th {
+  text-align: left;
+  padding: var(--space-4) var(--space-3);
+  border-bottom: var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.holdingsTable td {
+  white-space: nowrap;
+  color: var(--muted);
+}
+.holdingsTable th:nth-last-child(-n + 2),
+.holdingsTable td:nth-last-child(-n + 2) {
+  text-align: right;
+}
+.holdingsTable small {
+  font-size: 0.55rem;
+  color: var(--muted);
+  display: block;
+  margin-top: 0.15rem;
+}
+.finding {
+  display: flex;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) 0;
+  border-bottom: var(--line);
+}
+.finding > svg {
+  color: var(--warning);
+  margin-top: 0.2rem;
+}
+.finding p {
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+.finding small {
+  font-size: 0.6rem;
+  color: var(--muted);
+}

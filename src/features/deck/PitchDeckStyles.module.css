@@ -1,0 +1,218 @@
+.page {
+  min-height: 100dvh;
+  background: var(--canvas);
+  padding: var(--space-5);
+}
+.header {
+  max-width: 90rem;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: center;
+  padding-bottom: var(--space-5);
+}
+.header > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.header button {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: var(--line);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+}
+.active {
+  max-width: 90rem;
+  margin: auto;
+}
+.slide {
+  aspect-ratio: 16 / 10;
+  min-height: 35rem;
+  border: var(--line);
+  background: var(--surface);
+  padding: var(--space-6);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+}
+.slideTop {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-5);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.slideTop > span:last-child {
+  font-size: 1.1rem;
+  font-weight: 550;
+  letter-spacing: -0.05em;
+  color: var(--text);
+}
+.slideMain {
+  padding-block: var(--space-10);
+}
+.slideMain h1 {
+  font-size: clamp(2.2rem, 4.8vw, 4.5rem);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  white-space: pre-line;
+  max-width: 69rem;
+}
+.slideMain > p {
+  font-size: clamp(0.95rem, 1.65vw, 1.5rem);
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 55rem;
+  margin-top: var(--space-6);
+}
+.slideMain ul {
+  list-style: none;
+  margin: var(--space-8) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+  font-size: clamp(0.85rem, 1.4vw, 1.3rem);
+}
+.slideMain li {
+  padding-left: var(--space-5);
+  border-left: 2px solid var(--accent);
+}
+.slide > footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--space-5);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.slide > footer p {
+  max-width: 50rem;
+}
+.slide > footer > span {
+  white-space: nowrap;
+}
+.accent {
+  background: var(--ink);
+  color: var(--deck-text);
+  border-color: var(--ink);
+}
+.accent .slideTop,
+.accent .slideMain > p,
+.accent > footer {
+  color: var(--deck-muted);
+}
+.accent .slideTop > span:last-child {
+  color: var(--deck-text);
+}
+.accent h1 {
+  color: var(--mint);
+}
+.accent li {
+  border-color: var(--mint);
+}
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+}
+.controls > button {
+  width: 2.8rem;
+  height: 2.8rem;
+  background: var(--surface);
+  border: var(--line);
+  border-radius: 50%;
+}
+.controls > div {
+  display: flex;
+  gap: var(--space-2);
+}
+.controls > div button {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: var(--border);
+}
+.controls > div button[aria-current] {
+  background: var(--accent);
+}
+.controls > a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  font-weight: 600;
+}
+.print {
+  display: none;
+}
+@media (min-width: 60rem) {
+  .page {
+    padding: var(--space-6) var(--space-10);
+  }
+  .slide {
+    aspect-ratio: 16 / 9;
+    padding: var(--space-12);
+    min-height: 0;
+  }
+  .slideTop {
+    font-size: 0.72rem;
+  }
+  .slide > footer {
+    font-size: 0.75rem;
+  }
+  .slideMain {
+    padding-block: var(--space-10);
+  }
+}
+@media print {
+  .page {
+    padding: 0;
+  }
+  .header,
+  .active,
+  .controls {
+    display: none;
+  }
+  .print {
+    display: block;
+  }
+  .slide {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+    height: 100vh;
+    width: 100vw;
+    break-after: page;
+    box-shadow: none;
+    border: 0;
+    border-radius: 0;
+    padding: 3rem;
+    print-color-adjust: exact;
+  }
+  .slideMain h1 {
+    font-size: 3.2rem;
+  }
+  .slideMain > p {
+    font-size: 1.2rem;
+  }
+  .slideMain ul {
+    font-size: 1rem;
+  }
+  .slide > footer {
+    font-size: 0.65rem;
+  }
+}

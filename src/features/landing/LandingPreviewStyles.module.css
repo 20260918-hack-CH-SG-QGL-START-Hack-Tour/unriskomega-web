@@ -1,0 +1,209 @@
+.primary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-6);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.85rem 1.25rem;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  box-shadow: var(--shadow);
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+.primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-0.1rem);
+}
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 550;
+}
+.trustLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.67rem;
+  color: var(--muted);
+  margin-top: var(--space-6);
+}
+.trustLine span {
+  height: 0.8rem;
+  width: 1px;
+  background: var(--border);
+  margin-inline: var(--space-2);
+}
+.preview {
+  position: relative;
+  background: var(--surface);
+  border: var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-float);
+  min-width: 0;
+}
+@media (min-width: 48rem) {
+  .preview {
+    padding-bottom: var(--space-4);
+  }
+}
+@media (min-width: 68rem) {
+  .preview {
+    transform: perspective(70rem) rotateY(-3deg);
+  }
+}
+.previewBar {
+  height: 2.7rem;
+  padding-inline: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: var(--line);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+@media (min-width: 68rem) {
+  .previewBar {
+    font-size: 0.64rem;
+  }
+}
+.previewDots {
+  display: flex;
+  gap: 0.3rem;
+}
+.previewDots i {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--border);
+}
+.previewContent {
+  padding: var(--space-5);
+}
+@media (min-width: 48rem) {
+  .previewContent {
+    padding: var(--space-6);
+  }
+}
+.previewContext {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
+}
+.previewContext span:last-child {
+  letter-spacing: 0;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.previewContext i {
+  height: 0.25rem;
+  width: 0.25rem;
+  background: var(--accent);
+  border-radius: 50%;
+}
+@media (min-width: 68rem) {
+  .previewContext {
+    font-size: 0.56rem;
+  }
+}
+.previewHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+}
+.previewHeading p {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.previewHeading h3 {
+  font-size: 1.15rem;
+  font-weight: 550;
+  letter-spacing: -0.03em;
+  margin-top: var(--space-1);
+}
+@media (min-width: 68rem) {
+  .previewHeading h3 {
+    font-size: 1.2rem;
+  }
+}
+.roundIcon {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 50%;
+}
+.previewGrid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: var(--space-3);
+}
+@media (min-width: 68rem) {
+  .previewGrid {
+    gap: var(--space-4);
+  }
+}
+.previewAllocation,
+.previewBrief {
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  min-width: 0;
+}
+.previewAllocation > span {
+  font-size: 0.65rem;
+  font-weight: 550;
+}
+.previewAllocation svg {
+  display: block;
+  width: 100%;
+  max-height: 11rem;
+  margin: var(--space-2) auto;
+}
+.previewBrief {
+  background: var(--surface-soft);
+  border-color: transparent;
+}
+.previewBrief h4 {
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  margin: var(--space-4) 0 var(--space-2);
+}
+.previewBrief p {
+  font-size: 0.62rem;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: var(--space-4);
+}
+@media (min-width: 68rem) {
+  .previewAllocation,
+  .previewBrief {
+    padding: var(--space-5);
+  }
+}
+@media (min-width: 68rem) {
+  .previewBrief h4 {
+    font-size: 1.05rem;
+  }
+}
+@media (min-width: 68rem) {
+  .previewBrief p {
+    font-size: 0.7rem;
+  }
+}

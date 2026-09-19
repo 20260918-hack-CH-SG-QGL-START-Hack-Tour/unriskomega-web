@@ -1,0 +1,227 @@
+.page {
+  overflow: hidden;
+  background: var(--canvas);
+}
+.header,
+.hero,
+.features,
+.approach,
+.footer,
+.contextStrip {
+  max-width: 84rem;
+  margin: auto;
+  padding-inline: var(--space-6);
+}
+.header {
+  height: 6.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+.header nav {
+  display: none;
+  gap: var(--space-8);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+.signIn {
+  display: none;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.hero {
+  padding-block: var(--space-10) var(--space-16);
+  display: grid;
+  gap: var(--space-12);
+  align-items: center;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  font-weight: 650;
+  color: var(--accent);
+}
+.eyebrow i {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.hero h1 {
+  font-size: clamp(2.65rem, 5.1vw, 4.65rem);
+  letter-spacing: -0.068em;
+  font-weight: 550;
+  line-height: 1.07;
+  margin: var(--space-6) 0;
+}
+.hero em {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: -0.055em;
+}
+.contextStrip {
+  border-block: var(--line);
+  padding-block: var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.contextStrip strong {
+  font-size: 0.95rem;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+.contextStrip strong span {
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  max-width: 4rem;
+  line-height: 1.5;
+  margin-left: var(--space-2);
+}
+.features {
+  padding-block: 5rem;
+}
+.sectionIntro {
+  text-align: center;
+}
+.sectionIntro .eyebrow {
+  justify-content: center;
+}
+.sectionIntro h2,
+.approach h2 {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: -0.055em;
+  line-height: 1.2;
+  font-weight: 550;
+  margin-block: var(--space-4);
+}
+.sectionIntro p {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.approach {
+  padding-block: var(--space-10) 5rem;
+  display: grid;
+  gap: var(--space-8);
+  align-items: center;
+}
+.approach h2 {
+  max-width: 25rem;
+  margin-bottom: var(--space-6);
+}
+.approach ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.approach li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6) 0;
+  border-bottom: var(--line);
+}
+.approach li > span {
+  font-family: Georgia, serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--accent);
+}
+.approach li strong {
+  font-size: var(--text-sm);
+  font-weight: 550;
+}
+.approach li svg {
+  margin-left: auto;
+  color: var(--muted);
+}
+.footer {
+  border-top: var(--line);
+  padding-block: var(--space-8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.footer p {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.footer > a:last-child {
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+@media (min-width: 48rem) {
+  .header nav,
+  .signIn {
+    display: flex;
+  }
+}
+@media (min-width: 48rem) {
+  .header,
+  .hero,
+  .features,
+  .approach,
+  .footer,
+  .contextStrip {
+    padding-inline: var(--space-10);
+  }
+}
+@media (min-width: 48rem) {
+  .approach {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16);
+  }
+}
+@media (min-width: 68rem) {
+  .hero {
+    grid-template-columns: 1fr 1.1fr;
+    gap: var(--space-12);
+    padding-block: 5.5rem 7rem;
+  }
+}
+.headerActions {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+.skip {
+  position: absolute;
+  left: var(--space-4);
+  top: -5rem;
+  background: var(--accent);
+  padding: var(--space-4);
+  color: var(--on-accent);
+  z-index: 10;
+}
+.skip:focus {
+  top: var(--space-4);
+}
+.heroCopy > p {
+  max-width: 29rem;
+  line-height: 1.8;
+  color: var(--muted);
+  font-size: var(--text-base);
+}
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  margin-top: var(--space-8);
+}

@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Next.js generated prerender/action signing keys and binary build caches; .next is ignored and never committed. Dependency packages are checked through bun audit."
+paths = ['''(^|/)\.next/''', '''(^|/)node_modules/''']

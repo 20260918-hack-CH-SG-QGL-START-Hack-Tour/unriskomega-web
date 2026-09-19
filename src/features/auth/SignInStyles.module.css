@@ -1,0 +1,225 @@
+.page {
+  max-width: 90rem;
+  min-height: 100dvh;
+  margin: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+}
+.page > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.page > main {
+  display: grid;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-10);
+  padding-block: var(--space-12);
+}
+.art {
+  display: none;
+}
+.formPanel {
+  width: 100%;
+  max-width: 29rem;
+  margin: auto;
+}
+.formInner {
+  background: var(--surface);
+  border: var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  box-shadow: var(--shadow);
+}
+.introIcon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: var(--space-6);
+}
+.formInner h2 {
+  font-size: 2rem;
+  letter-spacing: -0.055em;
+  font-weight: 550;
+}
+.formInner > p {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+}
+.formInner form {
+  display: grid;
+  margin-top: var(--space-8);
+  gap: var(--space-2);
+}
+.formInner label {
+  font-size: var(--text-sm);
+  font-weight: 550;
+}
+.formInner input {
+  background: var(--canvas);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  color: var(--text);
+  margin-bottom: var(--space-3);
+  width: 100%;
+}
+.primary,
+.demoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  width: 100%;
+  min-height: 3rem;
+}
+.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 0;
+  margin-top: var(--space-2);
+}
+.primary svg {
+  margin-left: auto;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-block: var(--space-6);
+}
+.divider span {
+  height: 1px;
+  background: var(--border);
+  flex: 1;
+}
+.demoButton {
+  border: var(--line);
+  background: var(--surface-soft);
+}
+.demoButton > svg:last-child {
+  margin-left: auto;
+}
+.formInner .hint {
+  font-size: 0.7rem;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: var(--space-3);
+}
+.privacy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: var(--space-8);
+}
+.error {
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+.page > footer {
+  font-size: 0.68rem;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  color: var(--muted);
+}
+@media (min-width: 60rem) {
+  .page {
+    padding: var(--space-8) var(--space-12);
+  }
+  .page > main {
+    grid-template-columns: 1fr 1fr;
+    padding-block: var(--space-10);
+    gap: var(--space-16);
+  }
+  .art {
+    display: block;
+    max-width: 35rem;
+    padding: var(--space-8);
+  }
+  .eyebrow {
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.13em;
+    font-weight: 600;
+  }
+  .art h1 {
+    font-size: clamp(2.5rem, 4.4vw, 4.2rem);
+    line-height: 1.12;
+    letter-spacing: -0.065em;
+    font-weight: 550;
+    margin-block: var(--space-6);
+  }
+  .art em {
+    font-family: Georgia, serif;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .art p {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: 1.8;
+    max-width: 27rem;
+  }
+  .art small {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .orbit {
+    position: relative;
+    height: 15rem;
+    display: grid;
+    place-items: center;
+    margin-top: var(--space-4);
+    overflow: hidden;
+  }
+  .orbit > div {
+    position: absolute;
+    inset: 2rem 0;
+    border: var(--line);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+  }
+  .orbit > div:nth-child(2) {
+    inset: 4rem 1rem;
+    transform: rotate(25deg);
+    border-color: var(--mint);
+  }
+  .orbit > div:nth-child(3) {
+    inset: 0 5rem;
+    transform: rotate(-30deg);
+  }
+  .orbit > span {
+    width: 6rem;
+    height: 6rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow);
+  }
+  .formInner {
+    padding: var(--space-10);
+  }
+}
