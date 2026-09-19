@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { expect } from "@playwright/test";
+import { verifyMarketSourcesUi } from "./browser-market-fixture.mjs";
 import { verifyVoiceUi } from "./browser-voice-fixture.mjs";
 
 const sourceIds = ["E1"];
@@ -82,6 +83,7 @@ const fixture = {
 
 /** UI-only fixtures; provider checks remain a separate real-network phase. */
 export async function verifyGenerativeChat(page, check, shot) {
+  await verifyMarketSourcesUi(page, check);
   const requests = [];
   await page.route("**/api/v1/chat", (route) => {
     requests.push(route.request().postDataJSON());

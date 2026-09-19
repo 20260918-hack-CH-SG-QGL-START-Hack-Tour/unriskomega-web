@@ -120,7 +120,8 @@ export function MarketSourcesPanel({ compact = false }: { compact?: boolean }) {
             {data.houseView.status === "available" ? (
               <>
                 <strong>
-                  {copy.sourceDate}: {date(data.houseView.sourceDateLabel)}
+                  {copy.sourceDate}:{" "}
+                  {data.houseView.sourceDateLabel ?? copy.dateUnknown}
                 </strong>
                 <p className={styles.scope}>{copy.dateCaveat}</p>
                 <details open={!compact}>
