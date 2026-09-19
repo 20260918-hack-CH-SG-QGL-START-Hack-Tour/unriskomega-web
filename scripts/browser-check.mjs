@@ -120,7 +120,7 @@ try {
           const timeout = setTimeout(() => {
             socket.close();
             reject(new Error("WebSocket exchange timed out"));
-          }, 8000);
+          }, 30000);
           socket.onerror = () => {
             clearTimeout(timeout);
             reject(new Error("WebSocket handshake failed"));
