@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { filePayload } from "./model";
-import { runUploadBatch } from "./uploadBatch";
+import { parseUploadResult, runUploadBatch } from "./uploadBatch";
 
 test("batch uploads never exceed two simultaneous provider requests", async () => {
   let active = 0,
@@ -42,4 +42,45 @@ test("sponsor JSON files retain the JSON MIME type and exact bytes", async () =>
   );
   expect(payload.mimeType).toBe("application/json");
   expect(Buffer.from(payload.dataBase64, "base64").toString()).toBe(source);
+});
+
+test("PDF success responses keep their selected context without requiring JSON-only response fields", () => {
+  expect(
+    parseUploadResult(
+      { id: "document-id", status: "ready", extraction: {} },
+      { clientId: "client-a", portfolioId: "portfolio-a", review: true },
+    ),
+  ).toEqual({
+    documentId: "document-id",
+    clientId: "client-a",
+    portfolioId: "portfolio-a",
+    review: true,
+    imported: false,
+  });
+});
+
+test("JSON imports use their imported identity and reject incomplete results", () => {
+  const context = {
+    clientId: "selected-client",
+    portfolioId: "selected-portfolio",
+    review: false,
+  };
+  expect(
+    parseUploadResult(
+      {
+        id: "document-id",
+        status: "imported",
+        clientId: "bond",
+        portfolioId: "bond-portfolio",
+      },
+      context,
+    ),
+  ).toMatchObject({
+    clientId: "bond",
+    portfolioId: "bond-portfolio",
+    imported: true,
+  });
+  expect(() =>
+    parseUploadResult({ id: "document-id", status: "imported" }, context),
+  ).toThrow();
 });

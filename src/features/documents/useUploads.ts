@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { api, record, string } from "@/lib/api/client";
+import { api, record } from "@/lib/api/client";
 import { publishDataChange } from "@/lib/api/dataChanges";
 import type { Locale } from "@/lib/i18n";
 import { filePayload } from "./model";
 import {
+  parseUploadResult,
   runUploadBatch,
   type UploadItem,
   type UploadResult,
@@ -83,16 +84,13 @@ export function useUploads(
                 }),
               }),
             );
-            const result = {
-              documentId: string(response.id),
-              clientId: string(response.clientId) || context.clientId,
-              portfolioId: string(response.portfolioId),
-              imported: response.status === "imported",
+            const result = parseUploadResult(response, {
+              clientId: context.clientId,
+              portfolioId: context.portfolioId,
               review:
-                response.kind === "custody" ||
-                (context.kind === "custody" &&
-                  payload.mimeType === "application/pdf"),
-            };
+                context.kind === "custody" &&
+                payload.mimeType === "application/pdf",
+            });
             results.push(result);
             update(item.id, {
               result,
