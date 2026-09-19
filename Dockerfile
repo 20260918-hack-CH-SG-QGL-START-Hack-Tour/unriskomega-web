@@ -2,15 +2,22 @@ FROM oven/bun:1.4.2 AS dependencies
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
+FROM oven/bun:1.4.2 AS production-dependencies
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN bun install --production --frozen-lockfile
 FROM dependencies AS builder
 COPY . .
 RUN bun audit && bun test && bun run build
+RUN bun build ./next.config.ts --target=bun --outfile ./next.config.mjs
 FROM oven/bun:1.4.2 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
 COPY --from=builder --chown=bun:bun /app/.next/standalone ./
+COPY --from=production-dependencies --chown=bun:bun /app/node_modules ./node_modules
 COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 COPY --from=builder --chown=bun:bun /app/public ./public
+COPY --from=builder --chown=bun:bun /app/next.config.mjs ./next.config.mjs
 COPY --from=builder --chown=bun:bun /app/server.mjs /app/runtime-config.mjs ./
 USER bun
 EXPOSE 3000
