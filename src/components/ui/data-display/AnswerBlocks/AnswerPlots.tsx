@@ -6,9 +6,10 @@ import type { ChatComponent, Point } from "@/lib/models/chatComponents";
 import styles from "./AnswerBlocksStyles.module.css";
 
 function values(points: Point[]) {
-  const min = Math.min(0, ...points.map((point) => point.value));
-  const max = Math.max(0, ...points.map((point) => point.value));
-  return { min, max, range: max - min || 1 };
+  const scale = Math.max(1, ...points.map((point) => Math.abs(point.value)));
+  const min = Math.min(0, ...points.map((point) => point.value / scale));
+  const max = Math.max(0, ...points.map((point) => point.value / scale));
+  return { min, scale, range: max - min || 1 };
 }
 export function AnswerChart({
   points,
@@ -21,12 +22,12 @@ export function AnswerChart({
   unit?: string;
   locale: Locale;
 }) {
-  const { min, range } = values(points);
+  const { min, range, scale } = values(points);
   const zero = (-min / range) * 100;
   return (
     <section className={styles.bars} aria-label={title}>
       {points.map((point, index) => {
-        const position = ((point.value - min) / range) * 100;
+        const position = ((point.value / scale - min) / range) * 100;
         return (
           <div className={styles.barRow} key={`${index}-${point.label}`}>
             <span>{point.label}</span>
@@ -79,10 +80,10 @@ export function ProjectionPlot({
   locale: Locale;
   copy: ChatCopy;
 }) {
-  const { min, range } = values(component.points);
+  const { min, range, scale } = values(component.points);
   const plot = component.points.map((point, index) => ({
     x: 32 + (index / Math.max(1, component.points.length - 1)) * 576,
-    y: 170 - ((point.value - min) / range) * 140,
+    y: 170 - ((point.value / scale - min) / range) * 140,
     ...point,
   }));
   return (

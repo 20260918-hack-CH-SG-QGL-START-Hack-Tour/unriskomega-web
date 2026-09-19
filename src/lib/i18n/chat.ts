@@ -35,6 +35,14 @@ const en = {
     "Inspect the source references behind the answer. A passed check is not a guarantee of correctness.",
   cancel: "Cancel request",
   emptySource: "No source evidence supplied",
+  checkShape: "The answer uses supported visual components.",
+  checkSources: "References belong to the selected portfolio evidence.",
+  checkValues: "Metrics and chart values were checked against the source.",
+  checkReview: "A separate review checked the answer against the evidence.",
+  answerWithheld:
+    "The answer could not be verified. Try a more specific question about the available snapshot.",
+  componentsRemoved:
+    "Visual elements without sufficient evidence were omitted.",
 };
 export type ChatCopy = typeof en;
 export const chatMessages: Record<Locale, ChatCopy> = {
@@ -76,6 +84,16 @@ export const chatMessages: Record<Locale, ChatCopy> = {
       "Inspecciona las fuentes de la respuesta. Superar una comprobación no garantiza la exactitud.",
     cancel: "Cancelar solicitud",
     emptySource: "No se aportaron fuentes",
+    checkShape: "La respuesta utiliza componentes visuales compatibles.",
+    checkSources: "Las referencias pertenecen a la cartera seleccionada.",
+    checkValues:
+      "Las métricas y los valores del gráfico se contrastaron con la fuente.",
+    checkReview:
+      "Una revisión independiente contrastó la respuesta con las pruebas.",
+    answerWithheld:
+      "No se pudo verificar la respuesta. Prueba una pregunta más concreta sobre la instantánea disponible.",
+    componentsRemoved:
+      "Se omitieron los elementos visuales sin pruebas suficientes.",
   },
   de: {
     intro:
@@ -114,6 +132,17 @@ export const chatMessages: Record<Locale, ChatCopy> = {
       "Prüfe die Quellen der Antwort. Eine bestandene Prüfung garantiert keine Richtigkeit.",
     cancel: "Anfrage abbrechen",
     emptySource: "Keine Quellenbelege übermittelt",
+    checkShape: "Die Antwort verwendet unterstützte visuelle Komponenten.",
+    checkSources:
+      "Die Referenzen gehören zu den Belegen des ausgewählten Portfolios.",
+    checkValues:
+      "Kennzahlen und Diagrammwerte wurden mit der Quelle abgeglichen.",
+    checkReview:
+      "Eine unabhängige Prüfung hat die Antwort mit den Belegen verglichen.",
+    answerWithheld:
+      "Die Antwort konnte nicht verifiziert werden. Stelle eine konkretere Frage zum vorhandenen Portfoliostand.",
+    componentsRemoved:
+      "Visuelle Elemente ohne ausreichende Belege wurden ausgelassen.",
   },
   fr: {
     intro:
@@ -152,5 +181,28 @@ export const chatMessages: Record<Locale, ChatCopy> = {
       "Examinez les sources de la réponse. Un contrôle réussi ne garantit pas l’exactitude.",
     cancel: "Annuler la demande",
     emptySource: "Aucune source fournie",
+    checkShape: "La réponse utilise des composants visuels pris en charge.",
+    checkSources:
+      "Les références appartiennent aux preuves du portefeuille sélectionné.",
+    checkValues:
+      "Les indicateurs et valeurs du graphique ont été comparés à la source.",
+    checkReview: "Une revue indépendante a comparé la réponse aux preuves.",
+    answerWithheld:
+      "La réponse n’a pas pu être vérifiée. Posez une question plus précise sur l’instantané disponible.",
+    componentsRemoved:
+      "Les éléments visuels insuffisamment étayés ont été omis.",
   },
 };
+
+export function chatNotice(value: string, copy: ChatCopy): string {
+  const notices: Record<string, string> = {
+    "component-schema": copy.checkShape,
+    "run-local-source-membership": copy.checkSources,
+    "metric-and-chart-values": copy.checkValues,
+    "independent-model-review": copy.checkReview,
+    "draft-rejected-before-model-review": copy.answerWithheld,
+    ANSWER_WITHHELD_BY_VERIFICATION: copy.answerWithheld,
+    UNSUPPORTED_COMPONENTS_REMOVED: copy.componentsRemoved,
+  };
+  return notices[value] ?? value;
+}

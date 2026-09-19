@@ -32,6 +32,52 @@ describe("chat response boundary", () => {
         .components,
     ).toEqual([]);
   });
+  it("accepts the complete provider and covenant envelope at contract limits", () => {
+    const fullEvidence = Array.from({ length: 80 }, (_, index) => ({
+      id: `E${index + 1}`,
+      label: "Snapshot",
+      locator: "/allocation",
+    }));
+    const fullChart = {
+      ...chart,
+      unit: "u".repeat(80),
+      sourceIds: fullEvidence.map((item) => item.id),
+      points: [{ label: "a".repeat(160), value: 1e20 }],
+    };
+    const answer = parseChatAnswer({
+      ...response(fullChart),
+      evidence: fullEvidence,
+      sourceIds: ["E1"],
+      warnings: [],
+      orchestrator: "openclaw",
+      outcome: {
+        id: "r",
+        status: "accepted",
+        agentIds: [],
+        skillIds: [],
+        verification: { status: "passed", checks: [], humanReviewed: false },
+        warnings: [],
+      },
+    });
+    expect(answer.components[0].type).toBe("chart");
+    expect(answer.outcome?.verification.humanReviewed).toBe(false);
+  });
+  it("preserves blank cells and optional empty unit strings from valid provider tables", () => {
+    expect(
+      parseChatAnswer(
+        response({
+          type: "table",
+          title: "Coverage",
+          columns: ["Source", "Detail"],
+          rows: [["Snapshot", ""]],
+          sourceIds: ["E1"],
+        }),
+      ).components[0].type,
+    ).toBe("table");
+    expect(
+      parseChatAnswer(response({ ...chart, unit: "" })).components[0].type,
+    ).toBe("chart");
+  });
   it("rejects arbitrary component types and unexpected executable fields", () => {
     for (const component of [
       { type: "html", html: "<script>bad()</script>" },

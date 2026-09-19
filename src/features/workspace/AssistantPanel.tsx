@@ -1,94 +1,50 @@
 "use client";
-import Image from "next/image";
-import { type FormEvent, useRef, useState } from "react";
+import { type FormEvent, useRef } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
+import { Tooltip } from "@/components/ui/overlays/Tooltip/Tooltip";
 import { usePreferences } from "@/features/preferences/Preferences";
-import { ApiError, api, record, string } from "@/lib/api/client";
 import { clientConfig } from "@/lib/config";
+import { chatMessages } from "@/lib/i18n/chat";
+import { imagePrompt } from "@/lib/models/chat";
+import { AssistantMessages } from "./AssistantMessages";
 import styles from "./AssistantStyles.module.css";
+import { useAssistantChat } from "./useAssistantChat";
 import { useDictationComposer } from "./useDictationComposer";
 import { useVoice } from "./useVoice";
 
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  model?: string;
-};
 export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
   const { t, locale } = usePreferences();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState("");
-  const [imageMode, setImageMode] = useState(false);
-  const [generatedImage, setImage] = useState("");
-  const [imageModel, setImageModel] = useState("");
-  const sequence = useRef(0);
-  const dictation = useDictationComposer(input, setInput);
-  const append = (role: Message["role"], text: string, model?: string) =>
-    setMessages((values) => [
-      ...values,
-      { id: String(++sequence.current), role, text, model },
-    ]);
+  const copy = chatMessages[locale];
+  const chat = useAssistantChat(portfolioId, locale, t, copy);
+  const composer = useRef<HTMLTextAreaElement>(null);
+  const dictation = useDictationComposer(chat.input, chat.setInput);
   const voice = useVoice(
     portfolioId,
     locale,
     (text, mode, model, transcript) => {
       if (mode === "conversation")
-        append("user", text, `${t.voice} · ${model}`);
+        chat.append({ role: "user", text, model: `${t.voice} · ${model}` });
       else dictation.accept(transcript);
     },
-    (text, model) => append("assistant", text, `${t.voice} · ${model}`),
+    (text, model) =>
+      chat.append({ role: "assistant", text, model: `${t.voice} · ${model}` }),
     dictation.discard,
   );
-  async function submit(event?: FormEvent) {
+  const active = ["active", "connecting", "finalizing"].includes(
+    voice.voiceState,
+  );
+  const dictating = voice.voiceMode === "transcription";
+  const wantsImage = imagePrompt(chat.input) !== null;
+  function submit(event?: FormEvent) {
     event?.preventDefault();
-    if (!input.trim() || pending || voice.voiceMode === "transcription") return;
-    const prompt = input.trim();
-    setPending(true);
-    setError("");
-    if (!imageMode) {
-      append("user", prompt);
-      setInput("");
-    }
-    try {
-      const data = record(
-        await api(imageMode ? "images" : "chat", {
-          method: "POST",
-          body: JSON.stringify(
-            imageMode
-              ? { portfolioId, prompt, locale }
-              : { portfolioId, message: prompt, locale },
-          ),
-        }),
-      );
-      if (imageMode) {
-        const mime = string(data.mimeType);
-        const b64 = string(data.image);
-        if (
-          !["image/png", "image/jpeg", "image/webp"].includes(mime) ||
-          !/^[A-Za-z0-9+/=]+$/.test(b64) ||
-          b64.length > 30_000_000
-        )
-          throw new Error("Invalid image");
-        setImage(`data:${mime};base64,${b64}`);
-        setImageModel(string(data.model));
-      } else append("assistant", string(data.text), string(data.model ?? ""));
-    } catch (reason) {
-      setError(
-        reason instanceof ApiError && reason.status === 503
-          ? t.providerUnavailable
-          : t.error,
-      );
-    } finally {
-      setPending(false);
-    }
+    if (dictating) return;
+    if (wantsImage && active) voice.cancel();
+    void chat.submit();
   }
-  const active =
-    voice.voiceState === "active" ||
-    voice.voiceState === "connecting" ||
-    voice.voiceState === "finalizing";
+  function choosePrompt(prompt: string) {
+    chat.setInput(prompt);
+    composer.current?.focus();
+  }
   return (
     <section className={styles.panel}>
       <div className={styles.heading}>
@@ -99,112 +55,32 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
           <h2>{t.assistant}</h2>
           <span>{t.humanControl}</span>
         </div>
-        <span className={styles.scope}>
-          <Icon name="shield" width="13" />
-          {t.portfolioOverview}
-        </span>
-      </div>
-      <div className={styles.modeTabs}>
-        <button
-          type="button"
-          aria-pressed={!imageMode}
-          onClick={() => setImageMode(false)}
-        >
-          <Icon name="chat" width="16" />
-          {t.askPortfolio}
-        </button>
-        <button
-          type="button"
-          aria-pressed={imageMode}
-          onClick={() => {
-            voice.cancel();
-            setImageMode(true);
-          }}
-        >
-          <Icon name="image" width="16" />
-          {t.image}
-        </button>
-      </div>
-      {imageMode ? (
-        <div className={styles.imageArea}>
-          <span className={styles.largeIcon}>
-            <Icon name="image" width="32" height="32" />
-          </span>
-          <h3>{t.image}</h3>
-          <p>{t.imageHint}</p>
-          {generatedImage && (
-            <figure>
-              <Image
-                unoptimized
-                src={generatedImage}
-                alt={t.imageLabel}
-                width={1024}
-                height={1024}
-              />
-              <figcaption>
-                {t.imageLabel} · {imageModel}
-              </figcaption>
-            </figure>
-          )}
+        <div className={styles.scope}>
+          <Tooltip label={copy.scopeHelp} align="end">
+            <button type="button" aria-label={t.portfolioOverview}>
+              <Icon name="shield" width="13" />
+              {t.portfolioOverview}
+            </button>
+          </Tooltip>
         </div>
-      ) : (
-        <div className={styles.messages} aria-live="polite">
-          {messages.length === 0 ? (
-            <div className={styles.welcome}>
-              <span className={styles.largeIcon}>
-                <Icon name="spark" width="32" height="32" />
-              </span>
-              <h3>{t.askPortfolio}</h3>
-              <p>{t.chatIntro}</p>
-              <div className={styles.suggestions}>
-                {[t.chatPrompt1, t.chatPrompt2].map((prompt) => (
-                  <button
-                    type="button"
-                    key={prompt}
-                    onClick={() => setInput(prompt)}
-                    disabled={voice.voiceMode === "transcription"}
-                  >
-                    {prompt}
-                    <Icon name="arrow" width="15" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            messages.map((message) => (
-              <article
-                key={message.id}
-                className={
-                  message.role === "user"
-                    ? styles.userMessage
-                    : styles.assistantMessage
-                }
-              >
-                <span>
-                  {message.role === "assistant" ? (
-                    <Icon name="spark" width="16" />
-                  ) : (
-                    <Icon name="user" width="16" />
-                  )}
-                </span>
-                <div>
-                  <p>{message.text}</p>
-                  {message.model && <small>{message.model}</small>}
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-      )}
-      {pending && (
+      </div>
+      <AssistantMessages
+        messages={chat.messages}
+        onPrompt={choosePrompt}
+        disabled={dictating || !!chat.pending}
+      />
+      {chat.pending && (
         <output className={styles.status}>
           <span className={styles.pulse} />
-          {t.thinking}
+          {chat.pending === "image" ? copy.imageGenerating : t.thinking}
+          <button type="button" onClick={chat.cancel}>
+            {copy.cancel}
+          </button>
         </output>
       )}
-      {error && (
+      {chat.error && (
         <p role="alert" className={styles.error}>
-          {error}
+          {chat.error}
         </p>
       )}
       {voice.voiceState === "error" && (
@@ -214,69 +90,82 @@ export function AssistantPanel({ portfolioId }: { portfolioId: string }) {
       )}
       <form className={styles.composer} onSubmit={submit}>
         <label htmlFor="companion-message" className={styles.srOnly}>
-          {imageMode ? t.image : t.askPortfolio}
+          {t.askPortfolio}
         </label>
         <textarea
           id="companion-message"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder={imageMode ? t.imagePlaceholder : t.chatPlaceholder}
+          ref={composer}
+          value={chat.input}
+          onChange={(event) => chat.setInput(event.target.value)}
+          placeholder={wantsImage ? copy.imagePlaceholder : t.chatPlaceholder}
           rows={3}
-          readOnly={voice.voiceMode === "transcription"}
-          maxLength={
-            imageMode
-              ? clientConfig.maxImagePromptLength
-              : clientConfig.maxMessageLength
-          }
+          readOnly={dictating}
+          maxLength={clientConfig.maxMessageLength}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
               event.preventDefault();
-              void submit();
+              submit();
             }
           }}
         />
+        {wantsImage && <p className={styles.imageHint}>{t.imageHint}</p>}
         <div className={styles.composerActions}>
           <div>
-            {!imageMode && (
-              <>
-                <button
-                  type="button"
-                  onClick={() =>
-                    active ? voice.stop() : void voice.start("conversation")
-                  }
-                  aria-label={active ? t.stopVoice : t.voice}
-                  title={active ? t.stopVoice : t.voice}
-                  aria-pressed={active}
-                  disabled={voice.voiceState === "finalizing"}
-                >
-                  <Icon name={active ? "stop" : "mic"} width="18" />
-                  {active ? t.stopVoice : t.voice}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    dictation.begin();
-                    void voice.start("transcription");
-                  }}
-                  disabled={active}
-                  title={t.dictate}
-                  aria-label={t.dictate}
-                >
-                  <Icon name="book" width="18" />
-                </button>
-              </>
-            )}
+            <Tooltip label={active ? t.stopVoice : copy.voiceHelp}>
+              <button
+                type="button"
+                onClick={() =>
+                  active ? voice.stop() : void voice.start("conversation")
+                }
+                aria-label={active ? t.stopVoice : t.voice}
+                aria-pressed={active}
+                disabled={voice.voiceState === "finalizing"}
+              >
+                <Icon name={active ? "stop" : "mic"} width="18" />
+                <span>{active ? t.stopVoice : t.voice}</span>
+              </button>
+            </Tooltip>
+            <Tooltip label={copy.dictateHelp}>
+              <button
+                type="button"
+                onClick={() => {
+                  dictation.begin();
+                  void voice.start("transcription");
+                }}
+                disabled={active}
+                aria-label={t.dictate}
+              >
+                <Icon name="book" width="18" />
+              </button>
+            </Tooltip>
+            <Tooltip label={copy.imageHelp}>
+              <button
+                type="button"
+                onClick={() => {
+                  voice.cancel();
+                  choosePrompt("/image ");
+                }}
+                disabled={dictating || !!chat.pending}
+                aria-label={t.image}
+              >
+                <Icon name="image" width="18" />
+              </button>
+            </Tooltip>
           </div>
-          <button
-            type="submit"
-            disabled={
-              pending || !input.trim() || voice.voiceMode === "transcription"
-            }
-            className={styles.send}
-            aria-label={t.send}
-          >
-            <Icon name="send" width="19" />
-          </button>
+          <Tooltip label={copy.sendHelp} align="end">
+            <button
+              type="submit"
+              disabled={!!chat.pending || !chat.input.trim() || dictating}
+              className={styles.send}
+              aria-label={t.send}
+            >
+              <Icon name="send" width="19" />
+            </button>
+          </Tooltip>
         </div>
       </form>
       {active && (

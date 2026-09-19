@@ -13,7 +13,7 @@ export type ChatOutcome = {
   status: "accepted" | "needs_review";
   agentIds: string[];
   skillIds: string[];
-  verification: { status: string; checks: string[] };
+  verification: { status: string; checks: string[]; humanReviewed?: boolean };
   warnings: string[];
 };
 export type ChatAnswer = {
@@ -21,6 +21,7 @@ export type ChatAnswer = {
   model: string;
   components: ChatComponent[];
   evidence: Evidence[];
+  warnings: string[];
   outcome?: ChatOutcome;
 };
 export type GeneratedImage = { src: string; model: string };
@@ -42,7 +43,16 @@ function parseOutcome(value: unknown): ChatOutcome | undefined {
   ]);
   if (v.status !== "accepted" && v.status !== "needs_review")
     throw new Error("Invalid outcome status");
-  const verification = object(v.verification, ["status", "checks"]);
+  const verification = object(v.verification, [
+    "status",
+    "checks",
+    "humanReviewed",
+  ]);
+  if (
+    verification.humanReviewed !== undefined &&
+    typeof verification.humanReviewed !== "boolean"
+  )
+    throw new Error("Invalid human review status");
   return {
     id: text(v.id, 160),
     status: v.status,
@@ -51,6 +61,7 @@ function parseOutcome(value: unknown): ChatOutcome | undefined {
     verification: {
       status: text(verification.status, 80),
       checks: array(verification.checks, 30, 0).map((item) => text(item)),
+      humanReviewed: verification.humanReviewed as boolean | undefined,
     },
     warnings: array(v.warnings, 30, 0).map((item) => text(item)),
   };
@@ -63,15 +74,22 @@ export function parseChatAnswer(value: unknown): ChatAnswer {
     "components",
     "evidence",
     "outcome",
+    "sourceIds",
+    "warnings",
+    "orchestrator",
   ]);
   const evidence = parseEvidence(v.evidence);
+  const sourceIds = array(v.sourceIds ?? [], 80, 0).map((id) => text(id, 16));
+  if (sourceIds.some((id) => !evidence.some((item) => item.id === id)))
+    throw new Error("Unresolved answer evidence");
   return {
     text: text(v.text, 30000),
     model: typeof v.model === "string" ? v.model.slice(0, 160) : "",
-    components: array(v.components ?? [], 12, 0).map((item) =>
+    components: array(v.components ?? [], 6, 0).map((item) =>
       parseComponent(item, evidence),
     ),
     evidence,
+    warnings: array(v.warnings ?? [], 30, 0).map((item) => text(item)),
     outcome: parseOutcome(v.outcome),
   };
 }

@@ -1,0 +1,43 @@
+.generatedImage {
+  margin: var(--space-6) 0 0;
+}
+.generatedImage img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+.generatedImage figcaption {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: var(--space-2);
+}
+.answerEvidence {
+  font-size: var(--text-xs);
+  margin-top: var(--space-4);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.answerEvidence summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+.answerEvidence dl {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+.answerEvidence dt {
+  font-weight: 600;
+}
+.answerEvidence dd {
+  margin: 0;
+}
+.answerEvidence p {
+  margin-top: var(--space-2);
+}
+.warnings {
+  margin-top: var(--space-3);
+  padding-left: var(--space-4);
+  color: var(--warning);
+  font-size: var(--text-xs);
+}

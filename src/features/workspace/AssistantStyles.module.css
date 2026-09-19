@@ -2,7 +2,6 @@
   background: var(--surface);
   border: var(--line);
   border-radius: var(--radius);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 35rem;
@@ -39,27 +38,16 @@
   color: var(--accent);
   margin-left: auto;
 }
-.modeTabs {
-  display: flex;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-6);
-  border-bottom: var(--line);
-  flex-wrap: wrap;
-}
-.modeTabs button {
+.scope button {
   border: 0;
   background: transparent;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   display: flex;
   gap: var(--space-2);
   align-items: center;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   border-radius: var(--radius-sm);
-}
-.modeTabs button[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: var(--accent);
 }
 .messages {
   padding: var(--space-6);
@@ -70,8 +58,7 @@
   max-height: 40rem;
   overflow: auto;
 }
-.welcome,
-.imageArea {
+.welcome {
   text-align: center;
   margin: auto;
   padding: var(--space-8) 0;
@@ -87,14 +74,12 @@
   place-items: center;
   margin: 0 auto var(--space-5);
 }
-.welcome h3,
-.imageArea h3 {
+.welcome h3 {
   font-size: 1.5rem;
   font-weight: 500;
   letter-spacing: -0.04em;
 }
-.welcome p,
-.imageArea p {
+.welcome p {
   color: var(--muted);
   font-size: var(--text-sm);
   line-height: 1.8;
@@ -122,6 +107,10 @@
   display: flex;
   gap: var(--space-3);
   max-width: 94%;
+  min-width: 0;
+}
+.assistantMessage {
+  width: 100%;
 }
 .userMessage {
   margin-left: auto;
@@ -136,6 +125,7 @@
   background: var(--surface-soft);
   color: var(--accent);
   border-radius: 50%;
+  flex-shrink: 0;
 }
 .userMessage > div,
 .assistantMessage > div {
@@ -146,6 +136,8 @@
   background: var(--surface-soft);
 }
 .assistantMessage > div {
+  width: 100%;
+  min-width: 0;
   background: var(--canvas);
   border: var(--line);
 }
@@ -165,7 +157,6 @@
   border-radius: var(--radius);
   margin: 0 var(--space-5);
   background: var(--canvas);
-  overflow: hidden;
 }
 .composer textarea {
   background: transparent;
@@ -247,28 +238,26 @@
   margin: var(--space-4) var(--space-5);
   font-size: var(--text-sm);
 }
-.imageArea {
-  padding: var(--space-8);
-  flex: 1;
-}
-.imageArea figure {
-  margin: var(--space-6) 0 0;
-}
-.imageArea img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-}
-.imageArea figcaption {
-  font-size: 0.65rem;
+.imageHint {
+  font-size: var(--text-xs);
   color: var(--muted);
-  margin-top: var(--space-2);
+  padding: 0 var(--space-4) var(--space-3);
+}
+.status button {
+  margin-left: auto;
+  background: transparent;
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+}
+.composerActions button > span {
+  display: none;
 }
 .srOnly {
+  overflow: hidden;
   position: absolute;
   width: 1px;
   height: 1px;
-  overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
@@ -287,11 +276,13 @@
   .composer {
     margin: 0 var(--space-6);
   }
+  .composerActions button > span {
+    display: inline;
+  }
   .composerActions button {
     font-size: 0.75rem;
   }
-  .welcome,
-  .imageArea {
+  .welcome {
     padding-block: var(--space-12);
   }
 }
