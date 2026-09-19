@@ -62,7 +62,7 @@ try {
   await page
     .getByRole("link", { name: "Knowledge graph", exact: true })
     .click();
-  const focus = page.getByLabel("Focus node");
+  const focus = page.getByRole("combobox", { name: /^Focus node/ });
   await focus.locator("option").nth(100).waitFor({ state: "attached" });
   const options = await focus.locator("option").count();
   assert.ok(options > 100);

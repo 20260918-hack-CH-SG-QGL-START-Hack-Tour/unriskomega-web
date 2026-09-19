@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { expect } from "@playwright/test";
 
 const sourceIds = ["E1"];
 const points = [
@@ -127,7 +128,9 @@ export async function verifyGenerativeChat(page, check, shot) {
     .filter({ hasText: "Generate an illustration" })
     .waitFor();
   await imageAction.press("Escape");
-  assert.equal(await page.getByRole("tooltip").count(), 0);
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
+  await expect(imageAction).toBeFocused();
+  await expect(imageAction).not.toHaveAttribute("aria-describedby", /.+/);
   await imageAction.click();
   assert.equal(await composer.inputValue(), "/image ");
   let imagePrompt;
