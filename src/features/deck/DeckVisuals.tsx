@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { DeckLabels, Slide } from "./content";
 import styles from "./DeckVisualsStyles.module.css";
@@ -22,13 +21,15 @@ export function DeckVisual({
           <small>unriskomega / {name}</small>
         </div>
         <div className={styles.capture}>
-          <Image
+          {/* biome-ignore lint/performance/noImgElement: Precompressed local captures need native images because Next Image emits a CSP-blocked inline style. */}
+          <img
             src={`/deck/${name}.webp`}
             alt={labels.screenshot}
             width={1440}
             height={1100}
-            unoptimized
-            priority={slide.kind === "hero"}
+            decoding="async"
+            loading={slide.kind === "hero" ? "eager" : "lazy"}
+            fetchPriority={slide.kind === "hero" ? "high" : "auto"}
           />
         </div>
         <figcaption>{labels.screenshot}</figcaption>

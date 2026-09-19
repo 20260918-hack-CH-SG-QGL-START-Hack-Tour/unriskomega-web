@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useId, useRef } from "react";
 import { Icon } from "@/components/ui/data-display/Icon/Icon";
 import { usePreferences } from "@/features/preferences/Preferences";
@@ -32,12 +31,13 @@ export function ChatImage({
         aria-label={copy.preview}
         onClick={() => dialog.current?.showModal()}
       >
-        <Image
-          unoptimized
+        {/* biome-ignore lint/performance/noImgElement: Validated data images need native rendering without Next Image's CSP-blocked inline style. */}
+        <img
           src={image.src}
           alt={t.imageLabel}
           width={1024}
           height={1024}
+          decoding="async"
         />
         <span>
           <Icon name="image" width="16" />
@@ -59,12 +59,13 @@ export function ChatImage({
             <Icon name="close" />
           </button>
         </header>
-        <Image
-          unoptimized
+        {/* biome-ignore lint/performance/noImgElement: Keep the full data image preview compatible with nonce-only style CSP. */}
+        <img
           src={image.src}
           alt={copy.fullImage}
           width={1024}
           height={1024}
+          decoding="async"
         />
         <footer>
           <p>{t.imageHint}</p>

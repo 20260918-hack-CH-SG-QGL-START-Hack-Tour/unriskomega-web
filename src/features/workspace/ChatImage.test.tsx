@@ -55,3 +55,27 @@ it("renders the exact source facts beside an illustrative image", () => {
   expect(html).toContain("97.9%");
   expect(html).toContain("/allocation/0/weight");
 });
+
+it("image preview and dialog retain CSP-safe markup and format-specific downloads", () => {
+  for (const [mime, extension] of [
+    ["image/png", "png"],
+    ["image/jpeg", "jpg"],
+    ["image/webp", "webp"],
+  ]) {
+    const html = renderToStaticMarkup(
+      <PreferencesProvider>
+        <ChatImage
+          id="image/01"
+          image={{ src: `data:${mime};base64,aW1hZ2U=`, model: "fixture" }}
+        />
+      </PreferencesProvider>,
+    );
+    expect(html).not.toContain(" style=");
+    expect(html.match(/<img /g)).toHaveLength(2);
+    expect(html.match(/width="1024" height="1024"/g)).toHaveLength(2);
+    expect(html).toContain("<dialog");
+    expect(html).toContain(
+      `download="unriskomega-illustration-image-01.${extension}"`,
+    );
+  }
+});
