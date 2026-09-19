@@ -11,6 +11,7 @@ import { conversationMessages } from "@/lib/i18n/conversation";
 import { gapLabel } from "@/lib/i18n/portfolioLabels";
 import { AssistantPanel } from "./AssistantPanel";
 import { BriefingPanel } from "./BriefingPanel";
+import { MarketSourcesPanel } from "./MarketSourcesPanel";
 import {
   AllocationPanel,
   FindingsPanel,
@@ -196,6 +197,7 @@ export function Workspace() {
                       onEvidence={() => setTab("evidence")}
                     />
                   </div>
+                  <MarketSourcesPanel compact />
                   <HoldingsPanel portfolio={p} />
                   <button
                     type="button"
@@ -237,6 +239,7 @@ export function Workspace() {
               )}
               {tab === "evidence" && (
                 <>
+                  <MarketSourcesPanel />
                   <section className={styles.panel}>
                     <div className={styles.panelHeading}>
                       <h2>{t.evidence}</h2>
@@ -279,8 +282,22 @@ export function Workspace() {
                 <Icon name="info" width="17" />
                 <div>
                   <strong>{t.dataGaps}</strong>
-                  {p.dataGaps.length ? (
-                    p.dataGaps.map((gap) => <p key={gap}>{gapLabel(gap, t)}</p>)
+                  {p.dataGaps.filter(
+                    (gap) =>
+                      ![
+                        "EXTERNAL_NEWS_UNAVAILABLE",
+                        "HOUSE_VIEW_UNAVAILABLE",
+                      ].includes(gap),
+                  ).length ? (
+                    p.dataGaps
+                      .filter(
+                        (gap) =>
+                          ![
+                            "EXTERNAL_NEWS_UNAVAILABLE",
+                            "HOUSE_VIEW_UNAVAILABLE",
+                          ].includes(gap),
+                      )
+                      .map((gap) => <p key={gap}>{gapLabel(gap, t)}</p>)
                   ) : (
                     <p>{t.noHistory}</p>
                   )}
