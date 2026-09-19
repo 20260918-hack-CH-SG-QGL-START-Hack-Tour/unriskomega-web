@@ -19,3 +19,39 @@ it("provides a native preview dialog and raster download without duplicating the
   expect(html).toContain('alt="Full-size illustration"');
   expect(html.match(/alt="AI-generated illustration"/g)).toHaveLength(1);
 });
+
+it("renders the exact source facts beside an illustrative image", () => {
+  const html = renderToStaticMarkup(
+    <PreferencesProvider>
+      <ChatImage
+        id="image-2"
+        image={{
+          src: "data:image/png;base64,iVBORw==",
+          model: "image-provider",
+          briefing: {
+            title: "Portfolio briefing",
+            selectedClient: "Client 28",
+            selectedPortfolio: "Portfolio 01",
+            asOf: "2026-09-03",
+            facts: [
+              { label: "AUM", value: "171713.24", unit: "CHF", source: "/aum" },
+              {
+                label: "Shares",
+                value: "0.979",
+                unit: "fraction",
+                source: "/allocation/0/weight",
+              },
+            ],
+            warnings: [
+              "Illustrative image; accompanying values are source facts.",
+            ],
+          },
+        }}
+      />
+    </PreferencesProvider>,
+  );
+  expect(html).toContain("Client 28 · Portfolio 01 · 2026-09-03");
+  expect(html).toContain("171713.24 CHF");
+  expect(html).toContain("97.9%");
+  expect(html).toContain("/allocation/0/weight");
+});

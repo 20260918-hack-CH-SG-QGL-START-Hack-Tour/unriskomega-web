@@ -6,6 +6,7 @@ import { usePreferences } from "@/features/preferences/Preferences";
 import { conversationMessages } from "@/lib/i18n/conversation";
 import type { GeneratedImage } from "@/lib/models/chat";
 import styles from "./ChatImageStyles.module.css";
+import { ImageFacts } from "./ImageFacts";
 
 export function ChatImage({
   image,
@@ -46,6 +47,7 @@ export function ChatImage({
       <figcaption>
         {t.imageLabel} · {image.model}
       </figcaption>
+      {image.briefing && <ImageFacts briefing={image.briefing} />}
       <dialog ref={dialog} className={styles.dialog} aria-labelledby={title}>
         <header>
           <h3 id={title}>{t.imageLabel}</h3>

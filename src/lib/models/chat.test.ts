@@ -219,3 +219,45 @@ describe("same-conversation image capability", () => {
     ).toThrow();
   });
 });
+
+it("validates contextual image facts without inventing values or accepting an unbounded payload", () => {
+  const image = {
+    mimeType: "image/png",
+    image: "iVBORw==",
+    model: "image-model",
+    briefing: {
+      title: "Portfolio briefing",
+      selectedClient: "Client 28",
+      selectedPortfolio: "Portfolio 01",
+      asOf: "2026-09-03",
+      facts: [
+        {
+          label: "Shares",
+          value: "0.979",
+          unit: "fraction",
+          source: "/allocation/0/weight",
+        },
+      ],
+      warnings: [],
+    },
+  };
+  expect(parseGeneratedImage(image).briefing?.facts[0].value).toBe("0.979");
+  expect(() =>
+    parseGeneratedImage({
+      ...image,
+      briefing: {
+        ...image.briefing,
+        facts: [{ ...image.briefing.facts[0], value: "97.9" }],
+      },
+    }),
+  ).toThrow();
+  expect(() =>
+    parseGeneratedImage({
+      ...image,
+      briefing: {
+        ...image.briefing,
+        facts: Array(11).fill(image.briefing.facts[0]),
+      },
+    }),
+  ).toThrow();
+});

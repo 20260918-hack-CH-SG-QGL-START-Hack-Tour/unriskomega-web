@@ -7,6 +7,7 @@ import {
   parseEvidence,
   text,
 } from "./chatComponents";
+import { type ImageBriefing, parseImageBriefing } from "./imageBriefing";
 
 export type ChatOutcome = {
   id: string;
@@ -24,7 +25,11 @@ export type ChatAnswer = {
   warnings: string[];
   outcome?: ChatOutcome;
 };
-export type GeneratedImage = { src: string; model: string };
+export type GeneratedImage = {
+  src: string;
+  model: string;
+  briefing?: ImageBriefing;
+};
 export type ChatMessage = Partial<ChatAnswer> & {
   id: string;
   role: "user" | "assistant";
@@ -109,7 +114,11 @@ export function parseGeneratedImage(value: unknown): GeneratedImage {
     !/^[A-Za-z0-9+/]+={0,2}$/.test(image)
   )
     throw new Error("Invalid image encoding");
-  return { src: `data:${mime};base64,${image}`, model: text(v.model, 160) };
+  return {
+    src: `data:${mime};base64,${image}`,
+    model: text(v.model, 160),
+    briefing: parseImageBriefing(v.briefing),
+  };
 }
 
 // Only explicit opening commands select the paid image capability. Mentions of
