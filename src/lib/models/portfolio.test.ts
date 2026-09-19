@@ -62,6 +62,17 @@ describe("portfolio boundary", () => {
     expect(result.reportingCurrency).toBe("CHF");
     expect(result.currency).toBe("EUR");
   });
+  it("labels foreign holdings with the currency in which the source valued them", () => {
+    const result = parsePortfolio({
+      ...snapshot,
+      holdings: [
+        { ...snapshot.holdings[0], currency: "USD", valuationCurrency: "CHF" },
+      ],
+    });
+    expect(result.holdings[0].currency).toBe("CHF");
+    expect(result.holdings[0].marketValue).toBe(25000);
+    expect(parsePortfolio(snapshot).holdings[0].currency).toBe("EUR");
+  });
   it("preserves unavailable values instead of inventing zero", () => {
     const result = parsePortfolio(snapshot);
     expect(result.holdings[1].marketValue).toBeNull();

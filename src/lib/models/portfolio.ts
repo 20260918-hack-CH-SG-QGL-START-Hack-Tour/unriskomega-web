@@ -97,7 +97,7 @@ function parseHolding(value: unknown): Holding {
     id: string(h.id),
     name: string(h.name),
     assetClass: string(h.assetClass ?? "Other"),
-    currency: string(h.currency),
+    currency: string(h.valuationCurrency ?? h.currency),
     marketValue: optionalNumber(h.value),
     weight: h.weight == null ? null : number(h.weight) * 100,
   };
