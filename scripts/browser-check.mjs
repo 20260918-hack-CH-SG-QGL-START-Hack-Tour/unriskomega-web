@@ -8,6 +8,7 @@ import {
 import { verifyClientSwitchIsolation } from "./browser-scope.mjs";
 import {
   assertVoiceConnected,
+  assertVoiceMuted,
   assertVoiceStopped,
   installVoiceProbe,
 } from "./browser-voice.mjs";
@@ -150,12 +151,34 @@ try {
     );
     check("authenticated bidirectional WebSocket ping and pong");
 
+    const briefingResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/briefings") &&
+        response.request().method() === "POST",
+      { timeout: 120000 },
+    );
     await page
       .getByRole("button", { name: "Generate briefing", exact: true })
       .first()
       .click();
+    const generated = await briefingResponse;
+    assert.equal(generated.status(), 200);
+    const briefing = await generated.json();
+    if (phases.includes("providers")) {
+      assert.equal(
+        briefing.assistantResponse?.source,
+        "provider",
+        "Briefing must include real synthesized provider response",
+      );
+      assert.equal(briefing.assistantResponse.outcome.status, "accepted");
+    }
     await page
-      .getByText("Computed from snapshot", { exact: false })
+      .getByText(
+        briefing.assistantResponse
+          ? "Grounded generation"
+          : "Computed from snapshot",
+        { exact: false },
+      )
       .waitFor({ timeout: 30000 });
     await shot("workspace-briefing");
     check("actual source-backed briefing");
@@ -204,8 +227,26 @@ try {
         const payload = await response.json();
         assert.ok(payload.sdp.startsWith("v=0"));
         await assertVoiceConnected(page);
+        if (mode === "conversation") {
+          assert.ok(
+            payload.maxDurationSeconds > 60 &&
+              payload.maxDurationSeconds <= 3600,
+          );
+          await page
+            .getByRole("button", { name: "Mute microphone", exact: true })
+            .click();
+          await assertVoiceMuted(page, true);
+          await page
+            .getByRole("button", { name: "Unmute microphone", exact: true })
+            .click();
+          await assertVoiceMuted(page, false);
+        }
         await page
-          .getByRole("button", { name: "Stop microphone", exact: true })
+          .getByRole("button", {
+            name:
+              mode === "conversation" ? "End voice call" : "Stop microphone",
+            exact: true,
+          })
           .click();
 
         await assertVoiceStopped(page);

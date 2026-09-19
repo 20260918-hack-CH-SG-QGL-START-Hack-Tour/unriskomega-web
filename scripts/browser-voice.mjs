@@ -53,3 +53,22 @@ export async function assertVoiceStopped(page) {
     { timeout: 5000 },
   );
 }
+
+export async function assertVoiceMuted(page, muted) {
+  await page.waitForFunction(
+    (muted) => {
+      const captured = window.__uroVoiceQa;
+      return (
+        captured.peers.at(-1)?.connectionState === "connected" &&
+        captured.streams
+          .at(-1)
+          ?.getAudioTracks()
+          .every(
+            (track) => track.readyState === "live" && track.enabled === !muted,
+          )
+      );
+    },
+    muted,
+    { timeout: 5000 },
+  );
+}

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { expect } from "@playwright/test";
+import { verifyVoiceUi } from "./browser-voice-fixture.mjs";
 
 const sourceIds = ["E1"];
 const points = [
@@ -81,9 +82,27 @@ const fixture = {
 
 /** UI-only fixtures; provider checks remain a separate real-network phase. */
 export async function verifyGenerativeChat(page, check, shot) {
-  await page.route("**/api/v1/chat", (route) =>
-    route.fulfill({ json: fixture }),
+  const requests = [];
+  await page.route("**/api/v1/chat", (route) => {
+    requests.push(route.request().postDataJSON());
+    return route.fulfill({ json: fixture });
+  });
+  const selected = await page.evaluate(() => ({
+    client: document.querySelector("#client-select option:checked").textContent,
+    portfolio: document.querySelector("#portfolio-select option:checked")
+      .textContent,
+  }));
+  await expect(page.getByLabel("Selected context")).toContainText(
+    selected.client,
   );
+  await expect(page.getByLabel("Selected context")).toContainText(
+    selected.portfolio,
+  );
+  const sessionId = await page
+    .getByRole("button", { name: "Copy conversation ID", exact: true })
+    .locator("code")
+    .textContent();
+  assert.match(sessionId, /^[0-9a-f-]{36}$/);
   const composer = page.getByLabel("Ask about this portfolio", { exact: true });
   await page
     .getByRole("button", { name: "Allocation chart", exact: true })
@@ -103,6 +122,8 @@ export async function verifyGenerativeChat(page, check, shot) {
       await page.locator(`[data-component-type="${type}"]`).count(),
       1,
     );
+  assert.equal(requests[0].chatSessionId, sessionId);
+  assert.deepEqual(requests[0].history, []);
   assert.equal(await page.evaluate(() => window.injected), undefined);
   assert.equal(await page.locator("article script").count(), 0);
   await page
@@ -136,14 +157,26 @@ export async function verifyGenerativeChat(page, check, shot) {
   await imageAction.click();
   assert.equal(await composer.inputValue(), "/image ");
   let imagePrompt;
+  let imageContext;
   await page.route("**/api/v1/images", (route) => {
-    imagePrompt = route.request().postDataJSON().prompt;
+    imageContext = route.request().postDataJSON();
+    imagePrompt = imageContext.prompt;
     return route.fulfill({
       json: {
         mimeType: "image/png",
         image:
           "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aRZkAAAAASUVORK5CYII=",
         model: "browser-image-fixture",
+        briefing: {
+          title: "Illustrative portfolio briefing",
+          selectedClient: selected.client,
+          selectedPortfolio: selected.portfolio,
+          asOf: "2026-09-03",
+          facts: [{ label: "AUM", value: "100", unit: "CHF", source: "/aum" }],
+          warnings: [
+            "Illustrative image; accompanying values come from the snapshot.",
+          ],
+        },
       },
     });
   });
@@ -153,10 +186,50 @@ export async function verifyGenerativeChat(page, check, shot) {
     .getByAltText("AI-generated illustration", { exact: true })
     .waitFor();
   assert.equal(imagePrompt, "Generate an image of a green landscape");
+  assert.equal(imageContext.chatSessionId, sessionId);
+  assert.equal(imageContext.history.length, 2);
+  const inline = page.getByAltText("AI-generated illustration", {
+    exact: true,
+  });
+  assert.ok((await inline.boundingBox()).height <= 320);
+  await page
+    .getByRole("button", { name: "Open image preview", exact: true })
+    .click();
+  const preview = page.getByRole("dialog", {
+    name: "AI-generated illustration",
+    exact: true,
+  });
+  await expect(preview).toBeVisible();
+  await expect(
+    preview.getByRole("link", { name: "Download image", exact: true }),
+  ).toHaveAttribute("download", /\.png$/);
+  await shot("chat-image-preview");
+  await preview.press("Escape");
+  await expect(preview).toBeHidden();
+  await expect(
+    page.getByRole("button", { name: "Open image preview", exact: true }),
+  ).toBeFocused();
   assert.equal(await page.locator("article").count(), 4);
   assert.equal(await page.locator('[data-component-type="chart"]').count(), 1);
   check(
     "fixture image requested in same chat keeps previous answer; tooltip focus and Escape",
+  );
+
+  await verifyVoiceUi(page, check, shot);
+  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await page
+    .getByRole("button", { name: "AI companion", exact: false })
+    .first()
+    .click();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Copy conversation ID", exact: true })
+      .locator("code")
+      .textContent(),
+    sessionId,
+  );
+  check(
+    "fixture conversation context and ID survive tab navigation; image preview and download are bounded",
   );
 
   await page.getByRole("button", { name: "Dark mode", exact: true }).click();
